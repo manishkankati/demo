@@ -217,8 +217,10 @@ build.build.openshift.io/todo-ssr-1   Source   Git@1d78f42   Failed (GenericBuil
 
 NAME                                      IMAGE REPOSITORY                                                                    TAGS   UPDATED
 imagestream.image.openshift.io/todo-ssr   default-route-openshift-image-registry.apps.ocp4.example.com/production1/todo-ssr          
+```
 
-
+### Check the logs of pods or build.
+```
 [student@workstation task1-nodejs-helloworld]$ oc logs pods/todo-ssr-1-build 
 Defaulted container "sti-build" out of: sti-build, git-clone (init), manage-dockerfile (init)
 Adding cluster TLS certificate authority to trust store
@@ -252,8 +254,12 @@ npm error JSON.parse Note: package.json must be actual JSON, not just JavaScript
 npm error A complete log of this run can be found in: /opt/app-root/src/.npm/_logs/2026-09-28T17_02_04_240Z-debug-0.log
 error: build error: building at STEP "RUN /usr/libexec/s2i/assemble": while running runtime: exit status 1
 [student@workstation task1-nodejs-helloworld]$ 
+```
 
 
+### From the above output, one can get to know that issue is with "package.json" file.
+
+```bash
 [student@workstation task1-nodejs-helloworld]$ git clone  https://git.ocp4.example.com/developer/task1-nodejs-helloworld.git
 Cloning into 'task1-nodejs-helloworld'...
 Username for 'https://git.ocp4.example.com': developer
