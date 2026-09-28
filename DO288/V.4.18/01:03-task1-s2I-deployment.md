@@ -194,288 +194,152 @@ oc get builds
 ### If it failed then....
 
 
-### you 
----
+```yaml
+[student@workstation task1-nodejs-helloworld]$ oc get all
+Warning: apps.openshift.io/v1 DeploymentConfig is deprecated in v4.14+, unavailable in v4.10000+
+NAME                   READY   STATUS   RESTARTS   AGE
+pod/todo-ssr-1-build   0/1     Error    0          2m4s
 
-# 8. Create HTTP + HTTPS Route
+NAME               TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+service/todo-ssr   ClusterIP   172.30.212.25   <none>        8080/TCP   2m4s
 
-The application must support both HTTP and HTTPS.
+NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/todo-ssr   0/1     0            0           2m4s
 
-Create an edge route:
+NAME                                  DESIRED   CURRENT   READY   AGE
+replicaset.apps/todo-ssr-67f7dfd5f8   1         0         0       2m4s
 
-```bash
-oc create route edge \
---service=todo-ssr \
---hostname=todo-ssr.apps.ocp4.example.com \
---insecure-policy=Allow
+NAME                                      TYPE     FROM   LATEST
+buildconfig.build.openshift.io/todo-ssr   Source   Git    1
+
+NAME                                  TYPE     FROM          STATUS                        STARTED         DURATION
+build.build.openshift.io/todo-ssr-1   Source   Git@1d78f42   Failed (GenericBuildFailed)   2 minutes ago   21s
+
+NAME                                      IMAGE REPOSITORY                                                                    TAGS   UPDATED
+imagestream.image.openshift.io/todo-ssr   default-route-openshift-image-registry.apps.ocp4.example.com/production1/todo-ssr          
+
+
+[student@workstation task1-nodejs-helloworld]$ oc logs pods/todo-ssr-1-build 
+Defaulted container "sti-build" out of: sti-build, git-clone (init), manage-dockerfile (init)
+Adding cluster TLS certificate authority to trust store
+time="2026-09-28T17:01:52Z" level=info msg="Not using native diff for overlay, this may cause degraded performance for building images: kernel has CONFIG_OVERLAY_FS_REDIRECT_DIR enabled"
+I0928 17:01:52.300642       1 defaults.go:112] Defaulting to storage driver "overlay" with options [mountopt=metacopy=on].
+Caching blobs under "/var/cache/blobs".
+Trying to pull image-registry.openshift-image-registry.svc:5000/openshift/nodejs@sha256:5c63b1bcde0f0b7de50cd5bcbbe95c3e091c854bc5140a71893e77110d5f1ccc...
+Getting image source signatures
+Copying blob sha256:1540db9d0f7617b3e726dcc50dbddda620d399076641b79e067d76e46cc8510e
+Copying blob sha256:92efcdccd1058003df257e9cbdf756ff6b10bd276551590536a5a1678e099aaf
+Copying blob sha256:32cb216dbd98f1b9558c1726079aa254820ad0ae8c0cae13549574f31ca77d64
+Copying config sha256:9006b5d7d3ccaa8205ea30eae79fbb9ade5c1b204b3947219c841ea900c7e3e1
+Writing manifest to image destination
+Generating dockerfile with builder image image-registry.openshift-image-registry.svc:5000/openshift/nodejs@sha256:5c63b1bcde0f0b7de50cd5bcbbe95c3e091c854bc5140a71893e77110d5f1ccc
+Adding transient rw bind mount for /run/secrets/rhsm
+STEP 1/9: FROM image-registry.openshift-image-registry.svc:5000/openshift/nodejs@sha256:5c63b1bcde0f0b7de50cd5bcbbe95c3e091c854bc5140a71893e77110d5f1ccc
+STEP 2/9: LABEL "io.openshift.build.commit.id"="1d78f42c4cef86c80b7323bc8d537083784d5fa8"       "io.openshift.build.commit.ref"="main"       "io.openshift.build.commit.message"="hi"       "io.openshift.build.image"="image-registry.openshift-image-registry.svc:5000/openshift/nodejs@sha256:5c63b1bcde0f0b7de50cd5bcbbe95c3e091c854bc5140a71893e77110d5f1ccc"       "io.openshift.build.commit.author"="Student User <student@workstation.lab.example.com>"       "io.openshift.build.commit.date"="Mon Sep 28 13:00:59 2026 -0400"
+STEP 3/9: ENV OPENSHIFT_BUILD_NAME="todo-ssr-1"     OPENSHIFT_BUILD_NAMESPACE="production1"     OPENSHIFT_BUILD_SOURCE="https://git.ocp4.example.com/developer/task1-nodejs-helloworld.git"     OPENSHIFT_BUILD_COMMIT="1d78f42c4cef86c80b7323bc8d537083784d5fa8"     npm_config_registry="http://nexus-infra.apps.ocp4.example.com/repository/npm"
+STEP 4/9: USER root
+STEP 5/9: COPY upload/src /tmp/src
+STEP 6/9: RUN chown -R 1001:0 /tmp/src
+STEP 7/9: USER 1001
+STEP 8/9: RUN /usr/libexec/s2i/assemble
+---> Installing application source ...
+---> Installing all dependencies
+npm error code EJSONPARSE
+npm error path /opt/app-root/src/package.json.################### This is the error
+npm error JSON.parse Unexpected string in JSON at position 271 while parsing near "...s\": {\n    \"express\" \"^4.20.0\"\n  }\n}\n"
+npm error JSON.parse Failed to parse JSON data.
+npm error JSON.parse Note: package.json must be actual JSON, not just JavaScript.
+npm error A complete log of this run can be found in: /opt/app-root/src/.npm/_logs/2026-09-28T17_02_04_240Z-debug-0.log
+error: build error: building at STEP "RUN /usr/libexec/s2i/assemble": while running runtime: exit status 1
+[student@workstation task1-nodejs-helloworld]$ 
+
+
+[student@workstation task1-nodejs-helloworld]$ git clone  https://git.ocp4.example.com/developer/task1-nodejs-helloworld.git
+Cloning into 'task1-nodejs-helloworld'...
+Username for 'https://git.ocp4.example.com': developer
+Password for 'https://developer@git.ocp4.example.com': 
+
+[student@workstation task1-nodejs-helloworld]$ cd task1-nodejs-helloworld/
+
+[student@workstation task1-nodejs-helloworld]$ python3 -m json.tool package.json 
+Expecting ':' delimiter: line 12 column 15 (char 271)
+
+[student@workstation task1-nodejs-helloworld]$ cat -n package.json 
+     1  {
+     2    "name": "nodejs-helloworld",
+     3    "version": "1.0.0",
+     4    "description": "Hello World!",
+     5    "main": "devopswala.js",
+     6    "scripts": {
+     7      "start": "node devopswala.js"
+     8    },
+     9    "author": "Red Hat Training from Devopswala",
+    10    "license": "ASL",
+    11    "dependencies": {
+    12      "express" "^4.20.0".  ##### >>>>> ":" Colon is missing.
+    13    }
+    14  }
+[student@workstation task1-nodejs-helloworld]$ 
+
+[student@workstation task1-nodejs-helloworld]$ vim package.json 
+[student@workstation task1-nodejs-helloworld]$ python3 -m json.tool package.json 
+{
+    "name": "nodejs-helloworld",
+    "version": "1.0.0",
+    "description": "Hello World!",
+    "main": "devopswala.js",
+    "scripts": {
+        "start": "node devopswala.js"
+    },
+    "author": "Red Hat Training from Devopswala",
+    "license": "ASL",
+    "dependencies": {
+        "express": "^4.20.0"
+    }
+}
+[student@workstation task1-nodejs-helloworld]$ 
+
+[student@workstation task1-nodejs-helloworld]$ git add . ; git commit -m "hi" ; git push 
+
+[student@workstation task1-nodejs-helloworld]$ oc start-build bc/todo-ssr --follow 
+
+[student@workstation task1-nodejs-helloworld]$ oc get all
+Warning: apps.openshift.io/v1 DeploymentConfig is deprecated in v4.14+, unavailable in v4.10000+
+NAME                            READY   STATUS      RESTARTS   AGE
+pod/todo-ssr-1-build            0/1     Error       0          7m42s
+pod/todo-ssr-2-build            0/1     Completed   0          32s
+pod/todo-ssr-7d7cdfd7f4-mtxk2   1/1     Running     0          7s
+
+NAME               TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+service/todo-ssr   ClusterIP   172.30.212.25   <none>        8080/TCP   7m42s
+
+NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/todo-ssr   1/1     1            1           7m42s
+
+NAME                                  DESIRED   CURRENT   READY   AGE
+replicaset.apps/todo-ssr-67f7dfd5f8   0         0         0       7m42s
+replicaset.apps/todo-ssr-7d7cdfd7f4   1         1         1       7s
+
+NAME                                      TYPE     FROM   LATEST
+buildconfig.build.openshift.io/todo-ssr   Source   Git    2
+
+NAME                                  TYPE     FROM          STATUS                        STARTED          DURATION
+build.build.openshift.io/todo-ssr-1   Source   Git@1d78f42   Failed (GenericBuildFailed)   7 minutes ago    21s
+build.build.openshift.io/todo-ssr-2   Source   Git@90a702c   Complete                      32 seconds ago   27s
+
+NAME                                      IMAGE REPOSITORY                                                                    TAGS     UPDATED
+imagestream.image.openshift.io/todo-ssr   default-route-openshift-image-registry.apps.ocp4.example.com/production1/todo-ssr   latest   7 seconds ago
+
+
+[student@workstation task1-nodejs-helloworld]$ oc create route edge --service=todo-ssr --hostname=todo-ssr-production1.apps.ocp4.example.com --insecure-policy=Allow
+route.route.openshift.io/todo-ssr created
+
+[student@workstation task1-nodejs-helloworld]$ curl https://todo-ssr-production1.apps.ocp4.example.com
+Hello World!
+[student@workstation task1-nodejs-helloworld]$ curl http://todo-ssr-production1.apps.ocp4.example.com
+Hello World!
+[student@workstation task1-nodejs-helloworld]$
 ```
-
-Explanation:
-
-## Edge Route
-
-TLS terminates at the OpenShift router.
-
-Traffic flow:
-
-```
-Client
- |
- | HTTPS
- |
-OpenShift Router
- |
- | HTTP
- |
-Service
- |
-Application Pod
-```
-
-## insecure-policy=Allow
-
-Allows both:
-
-```
-HTTP  --> Application
-HTTPS --> Application
-```
-
----
-
-# 9. Verify Deployment
-
-## Check Pods
-
-```bash
-oc get pods
-```
-
-Expected:
-
-```
-todo-ssr-xxxxx   Running
-```
-
----
-
-## Check BuildConfig
-
-```bash
-oc get bc
-```
-
-Expected:
-
-```
-todo-ssr
-```
-
----
-
-## Check Deployment
-
-```bash
-oc get deployment
-```
-
-Expected:
-
-```
-todo-ssr
-```
-
----
-
-## Check Service
-
-```bash
-oc get svc
-```
-
-Expected:
-
-```
-service/todo-ssr
-```
-
----
-
-## Check Route
-
-```bash
-oc get routes
-```
-
-Expected:
-
-```
-NAME       HOST/PORT                         TERMINATION
-
-todo-ssr   todo-ssr.apps.ocp4.example.com    edge
-```
-
----
-
-# 10. Access Application
-
-HTTP:
-
-```
-http://todo-ssr-production1.apps.ocp4.example.com
-```
-
-HTTPS:
-
-```
-https://todo-ssr-production1.apps.ocp4.example.com
-```
-
-Both should open successfully.
-
-CLI 
-
-```bash
-curl -I http://todo-ssr-production1.apps.ocp4.example.com
-```
-```bash
-curl -I http://todo-ssr-production1.apps.ocp4.example.com
-```
----
-
-# Web Console Verification
-
-Open:
-
-```
-https://console-openshift-console.apps.ocp4.example.com
-```
-
-Login:
-
-```
-Username: developer
-Password: developer
-```
-
-Navigate to:
-
-```
-Project → production1
-```
-
-Verify:
-
-* Builds
-* Deployments
-* Pods
-* Services
-* Routes
-
----
-
-# Troubleshooting Commands
-
-## Check Build Logs
-
-```bash
-oc logs build/todo-ssr-1
-```
-
----
-
-## Check BuildConfig
-
-```bash
-oc describe bc todo-ssr
-```
-
----
-
-## Check Route Details
-
-```bash
-oc describe route todo-ssr
-```
-
----
-
-## Check Application Logs
-
-```bash
-oc logs deployment/todo-ssr
-```
-
----
-
-# EX288 Key Learning Points
-
-## S2I Deployment Flow
-
-```
-Git Repository
-       |
-       |
-       v
-BuildConfig
-       |
-       |
-       v
-S2I Builder Image
-(nodejs:18-ubi9)
-       |
-       |
-       v
-ImageStream
-       |
-       |
-       v
-Deployment
-       |
-       |
-       v
-Service
-       |
-       |
-       v
-Route
-```
-
----
-
-## Important Commands to Remember
-
-Create application:
-
-```bash
-oc new-app builder~git-repository
-```
-
-Create secret:
-
-```bash
-oc create secret generic
-```
-
-Link build secret:
-
-```bash
-oc secrets link builder secret-name
-```
-
-Create HTTPS route:
-
-```bash
-oc create route edge
-```
-
-Allow HTTP + HTTPS:
-
-```bash
---insecure-policy=Allow
-```
-
----
 
 # End of Lab
 
