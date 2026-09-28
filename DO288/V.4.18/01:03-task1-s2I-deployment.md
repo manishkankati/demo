@@ -191,24 +191,10 @@ Check build status:
 ```bash
 oc get builds
 ```
+### If it failed then....
 
-Example:
 
-```
-NAME          TYPE      STATUS
-todo-ssr-1    Source    Complete
-```
-
-Follow build logs:
-
-```bash
-oc logs build/todo-ssr-1
-```
-
-### If you observe some issue and want to re-run the build 
-```bash
-oc start-build todo-ssr --follow
-```
+### you 
 ---
 
 # 8. Create HTTP + HTTPS Route
