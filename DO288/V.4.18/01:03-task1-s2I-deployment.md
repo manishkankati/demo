@@ -41,7 +41,7 @@ You are a developer working on an OpenShift cluster.
 - The application source code is located in the subdirectory: `apps/compreview-todo/todo-ssr`
 - The application must be deployed to the project `production1`
 - The deployed application and its resources must be named `todo-ssr`
-- The application must be based on the image stream tag `nodejs:16-ubi8`
+- The application must be based on the image stream tag `nodejs:18-ubi9`
 - The application's dependencies are available at: `http://nexus-infra.apps.ocp4.example.com/repository/npm`
 - The Git server requires authentication using the following credentials:
 ```
@@ -169,7 +169,7 @@ Create the application using S2I:
 oc new-app \
 --name=todo-ssr \
 --build-env npm_config_registry=http://nexus-infra.apps.ocp4.example.com/repository/npm \
-nodejs:16-ubi8~https://git.ocp4.example.com/developer/task1-nodejs-helloworld.git \
+nodejs:18-ubi9~https://git.ocp4.example.com/developer/task1-nodejs-helloworld.git \
 --context-dir=apps/compreview-todo/todo-ssr
 ```
 
@@ -436,7 +436,7 @@ BuildConfig
        |
        v
 S2I Builder Image
-(nodejs:16-ubi8)
+(nodejs:18-ubi9)
        |
        |
        v
