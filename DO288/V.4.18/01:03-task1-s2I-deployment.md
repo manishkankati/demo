@@ -347,7 +347,32 @@ Hello World!
 [student@workstation task1-nodejs-helloworld]$
 ```
 
-# End of Lab
+# Direct commands.
 
+```bash
+oc create secret generic gitlab-secret --type=kubernetes.io/basic-auth --from-literal=username=developer --from-literal=password=d3v3lop3r
+oc annotate secret gitlab-secret "build.openshift.io/source-secret-match-uri-1=https://git.ocp4.example.com/*"
+oc secrets link builder gitlab-secret
+oc new-app --name=todo-ssr --build-env npm_config_registry=http://nexus-infra.apps.ocp4.example.com/repository/npm nodejs:18-ubi9~https://git.ocp4.example.com/developer/task1-nodejs-helloworld.git 
+oc get pods
+oc get all
+oc logs pods/todo-ssr-1-build 
+git clone  https://git.ocp4.example.com/developer/task1-nodejs-helloworld.git
+ls -ltr
+cd task1-nodejs-helloworld/
+python3 -m json.tool package.json 
+cat -n package.json 
+vim package.json 
+python3 -m json.tool package.json 
+git add . ; git commit -m "hi" ; git push 
+oc start-build bc/todo-ssr --follow 
+oc get all
+oc create route edge --service=todo-ssr --hostname=todo-ssr-production1.apps.ocp4.example.com --insecure-policy=Allow
+curl https://todo-ssr-production1.apps.ocp4.example.com
+curl http://todo-ssr-production1.apps.ocp4.example.com
 ```
+
+## How to clear the lab?
+```
+oc delete  all -l app=todo-ssr
 ```
