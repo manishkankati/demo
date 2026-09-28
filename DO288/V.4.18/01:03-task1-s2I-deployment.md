@@ -35,7 +35,8 @@ oc new-project production1
 
 You are a developer working on an OpenShift cluster.
 
-- The application must be built and deployed from the source code at: `https://git.ocp4.example.com/developer/task1-nodejs-helloworld.git`
+- The application must be built and deployed from the source code at:
+      `https://git.ocp4.example.com/developer/task1-nodejs-helloworld.git`
 - The application source code is located in the subdirectory: `apps/compreview-todo/todo-ssr`
 - The application must be deployed to the project `production1`
 - The deployed application and its resources must be named `todo-ssr`
