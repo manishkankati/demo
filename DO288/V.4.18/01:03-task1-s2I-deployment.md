@@ -26,7 +26,48 @@ Git server.
 ```bash
 lab start deploy-introduction
 oc login -u developer -p developer https://api.ocp4.example.com:6443
-oc new-project production1
+mkdir -p /home/student/ex288/task1/
+cd /home/student/ex288/task1/
+
+cat <<EOF > package.json
+{
+  "name": "nodejs-helloworld",
+  "version": "1.0.0",
+  "description": "Hello World!",
+  "main": "devopswala.js",
+  "scripts": {
+    "start": "node devopswala.js"
+  },
+  "author": "Red Hat Training from Devopswala",
+  "license": "ASL",
+  "dependencies": {
+    "express" "^4.20.0"
+  }
+}
+EOF
+
+cat <<EOF > devopswala.js
+const express = require('express');
+const app = express();
+
+app.get('/', function (req, res) {
+  res.send('Hello World!\n');
+});
+
+app.listen(8080, function () {
+  console.log('Devopswala app listening on port 8080!');
+});
+EOF
+
+
+git init -b main
+git config user.name "Student"
+git config user.email "student@ocp4.example.com"
+git remote add origin https://developer:d3v3lop3r@git.ocp4.example.com/developer/task1-nodejs-helloworld.git
+git add .
+git commit -m "Add EX288 practice files"
+git push -u origin main
+
 ````
 
 ---
