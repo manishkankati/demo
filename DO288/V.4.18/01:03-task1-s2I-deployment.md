@@ -24,10 +24,15 @@ Git server.
 > application files before attempting the task.
 
 ```bash
+
 lab start deploy-introduction
 oc login -u developer -p developer https://api.ocp4.example.com:6443
 mkdir -p /home/student/ex288/task1/
 cd /home/student/ex288/task1/
+
+mkdir -p apps/task1/helloworld
+cd apps/task1/helloworld
+
 
 cat <<EOF > package.json
 {
@@ -59,15 +64,16 @@ app.listen(8080, function () {
 });
 EOF
 
+cd /home/student/ex288/task1/
 
 git init -b main
+git checkout -b secure-api
 git config user.name "Student"
 git config user.email "student@ocp4.example.com"
 git remote add origin https://developer:d3v3lop3r@git.ocp4.example.com/developer/task1-nodejs-helloworld.git
 git add .
 git commit -m "Add EX288 practice files"
-git push -u origin main
-
+git push -u origin secure-api
 ````
 
 ---
@@ -79,7 +85,8 @@ You are a developer working on an OpenShift cluster.
 - The application must be built and deployed from the source code at:
   
        https://git.ocp4.example.com/developer/task1-nodejs-helloworld.git
-- The application source code is located in the subdirectory: `apps/compreview-todo/todo-ssr`
+- The application source code is located in the subdirectory: `apps/task1/helloworld`
+- The Git Branch is **`secure-api`**
 - The application must be deployed to the project `production1`
 - The deployed application and its resources must be named `todo-ssr`
 - The application must be based on the image stream tag `nodejs:18-ubi9`
@@ -210,8 +217,8 @@ Create the application using S2I:
 oc new-app \
 --name=todo-ssr \
 --build-env npm_config_registry=http://nexus-infra.apps.ocp4.example.com/repository/npm \
-nodejs:18-ubi9~https://git.ocp4.example.com/developer/task1-nodejs-helloworld.git \
---context-dir=apps/compreview-todo/todo-ssr
+nodejs:18-ubi9~https://git.ocp4.example.com/developer/task1-nodejs-helloworld.git#secure-api \
+--context-dir=apps/task1/helloworld
 ```
 
 This command creates:
@@ -278,7 +285,7 @@ Writing manifest to image destination
 Generating dockerfile with builder image image-registry.openshift-image-registry.svc:5000/openshift/nodejs@sha256:5c63b1bcde0f0b7de50cd5bcbbe95c3e091c854bc5140a71893e77110d5f1ccc
 Adding transient rw bind mount for /run/secrets/rhsm
 STEP 1/9: FROM image-registry.openshift-image-registry.svc:5000/openshift/nodejs@sha256:5c63b1bcde0f0b7de50cd5bcbbe95c3e091c854bc5140a71893e77110d5f1ccc
-STEP 2/9: LABEL "io.openshift.build.commit.id"="1d78f42c4cef86c80b7323bc8d537083784d5fa8"       "io.openshift.build.commit.ref"="main"       "io.openshift.build.commit.message"="hi"       "io.openshift.build.image"="image-registry.openshift-image-registry.svc:5000/openshift/nodejs@sha256:5c63b1bcde0f0b7de50cd5bcbbe95c3e091c854bc5140a71893e77110d5f1ccc"       "io.openshift.build.commit.author"="Student User <student@workstation.lab.example.com>"       "io.openshift.build.commit.date"="Mon Sep 28 13:00:59 2026 -0400"
+STEP 2/9: LABEL "io.openshift.build.commit.id"="1d78f42c4cef86c80b7323bc8d537083784d5fa8"       "io.openshift.build.commit.ref"="secure-api"       "io.openshift.build.commit.message"="hi"       "io.openshift.build.image"="image-registry.openshift-image-registry.svc:5000/openshift/nodejs@sha256:5c63b1bcde0f0b7de50cd5bcbbe95c3e091c854bc5140a71893e77110d5f1ccc"       "io.openshift.build.commit.author"="Student User <student@workstation.lab.example.com>"       "io.openshift.build.commit.date"="Mon Sep 28 13:00:59 2026 -0400"
 STEP 3/9: ENV OPENSHIFT_BUILD_NAME="todo-ssr-1"     OPENSHIFT_BUILD_NAMESPACE="production1"     OPENSHIFT_BUILD_SOURCE="https://git.ocp4.example.com/developer/task1-nodejs-helloworld.git"     OPENSHIFT_BUILD_COMMIT="1d78f42c4cef86c80b7323bc8d537083784d5fa8"     npm_config_registry="http://nexus-infra.apps.ocp4.example.com/repository/npm"
 STEP 4/9: USER root
 STEP 5/9: COPY upload/src /tmp/src
