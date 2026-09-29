@@ -312,6 +312,14 @@ Move into the repository:
 cd task1-nodejs-helloworld/
 ```
 
+```
+ls -ltr
+```
+
+```
+cd apps/task1/helloworld/
+```
+
 # ✅ Validate package.json
 
 Run:
