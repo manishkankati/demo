@@ -510,6 +510,7 @@ Remove application resources:
 
 ```bash
 oc delete all -l app=todo-ssr
+rm -rf /home/student/ex288/task1/
 ```
 
 # Direct commands.
