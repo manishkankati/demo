@@ -110,14 +110,6 @@ Password: d3v3lop3r
 <summary><strong>✅ 🚀 Show the complete solution and explanation</strong></summary>
 
 
-
-
-
-<img width="1864" height="1037" alt="Openshift Doc for (--build-env) " src="https://github.com/user-attachments/assets/5b13bc76-9420-444b-ae72-0ee322dd9a8a" />
-
----
-
-
 ---
 
 # 1. Login to OpenShift
@@ -236,6 +228,11 @@ oc new-app \
 nodejs:18-ubi9~https://git.ocp4.example.com/developer/task1-nodejs-helloworld.git#secure-api \
 --context-dir=apps/task1/helloworld
 ```
+
+### If you forget the command or syntax then use the Openshift documentation. 
+
+<img width="1864" height="1037" alt="Openshift Doc for (--build-env) " src="https://github.com/user-attachments/assets/5b13bc76-9420-444b-ae72-0ee322dd9a8a" />
+
 
 ---
 
@@ -515,26 +512,6 @@ Remove application resources:
 oc delete all -l app=todo-ssr
 ```
 
----
-
-</details>
-
----
-
-# 🎓 End of Lab
-
-You have successfully completed:
-
-✅ Git-based OpenShift deployment  
-✅ S2I application build  
-✅ Git secret configuration  
-✅ BuildConfig creation  
-✅ Application deployment  
-✅ OpenShift route creation  
-✅ Application validation  
-
----
-
 # Direct commands.
 
 ```bash
@@ -563,3 +540,7 @@ curl https://todo-ssr-production1.apps.ocp4.example.com
 curl http://todo-ssr-production1.apps.ocp4.example.com
 ```
 
+
+# 🎓 End of Lab
+
+</details>
