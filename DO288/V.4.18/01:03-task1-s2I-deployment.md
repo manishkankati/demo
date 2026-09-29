@@ -420,6 +420,220 @@ curl https://todo-ssr-production1.apps.ocp4.example.com
 curl http://todo-ssr-production1.apps.ocp4.example.com
 ```
 
+
+
+
+Here is **Part 2/3**. Continue copying this immediately after:
+
+```markdown
+<details>
+<summary><strong>✅ Show the complete solution and explanation</strong></summary>
+```
+
+---
+
+```markdown
+# 🚀 Solution
+
+---
+
+# 1. Login to OpenShift
+
+Login using the developer account:
+
+```bash
+oc login -u developer -p developer https://api.ocp4.example.com:6443
+```
+
+---
+
+# 2. Switch to the Required Project
+
+Change to the `production1` project:
+
+```bash
+oc project production1
+```
+
+---
+
+# 🔐 3. Create Git Authentication Secret
+
+The Git repository requires authentication. Create a secret containing the Git credentials.
+
+```bash
+oc create secret generic gitlab-secret \
+--type=kubernetes.io/basic-auth \
+--from-literal=username=developer \
+--from-literal=password=d3v3lop3r
+```
+
+---
+
+## Verify Secret Creation
+
+```bash
+oc get secrets
+```
+
+Expected:
+
+```text
+gitlab-secret
+```
+
+---
+
+# 🔗 4. Add Git URL Matching Annotation
+
+OpenShift uses the annotation below to automatically associate the secret with the matching Git repository URL.
+
+```bash
+oc annotate secret gitlab-secret \
+"build.openshift.io/source-secret-match-uri-1=https://git.ocp4.example.com/*"
+```
+
+---
+
+## Verify Annotation
+
+```bash
+oc describe secret gitlab-secret
+```
+
+Expected:
+
+```text
+Annotations:
+  build.openshift.io/source-secret-match-uri-1: https://git.ocp4.example.com/*
+```
+
+---
+
+# 🔑 5. Link Secret to Builder Service Account
+
+The S2I build process runs using the `builder` service account.
+
+Link the Git secret:
+
+```bash
+oc secrets link builder gitlab-secret
+```
+
+---
+
+## Verify Builder Service Account
+
+```bash
+oc describe serviceaccount builder
+```
+
+Expected:
+
+```text
+Mountable secrets:
+  builder-dockercfg-xxxxx
+  gitlab-secret
+```
+
+---
+
+# 🚀 6. Create the Application
+
+Create the application using Source-to-Image (S2I).
+
+```bash
+oc new-app \
+--name=todo-ssr \
+--build-env npm_config_registry=http://nexus-infra.apps.ocp4.example.com/repository/npm \
+nodejs:18-ubi9~https://git.ocp4.example.com/developer/task1-nodejs-helloworld.git#secure-api \
+--context-dir=apps/task1/helloworld
+```
+
+---
+
+## Application Resources Created
+
+The above command creates:
+
+| Resource | Purpose |
+|---|---|
+| BuildConfig | Defines the source build process |
+| ImageStream | Stores generated container images |
+| Deployment | Runs application pods |
+| Service | Provides internal application access |
+
+---
+
+# 📊 7. Monitor the Build
+
+Check the build status:
+
+```bash
+oc get builds
+```
+
+Example:
+
+```text
+NAME          TYPE     FROM       STATUS
+todo-ssr-1    Source   Git        Running
+```
+
+---
+
+Check all application resources:
+
+```bash
+oc get all
+```
+
+---
+
+# 🛠️ 8. Troubleshooting Build Failure
+
+If the build fails:
+
+Check the build pod logs:
+
+```bash
+oc logs pods/todo-ssr-1-build
+```
+
+Look for application build errors.
+
+Common build problems include:
+
+- Invalid application files
+- Dependency installation failures
+- Incorrect Git source configuration
+- Incorrect build environment variables
+
+---
+
+# 🔍 9. Verify Build Logs
+
+Example S2I build flow:
+
+```text
+Installing application source ...
+
+Installing all dependencies
+
+Building application image
+
+Successfully built image
+```
+
+A successful build should complete with:
+
+```text
+Build completed successfully
+```
+
+---
+
+
 ## How to clear the lab?
 ```
 oc delete  all -l app=todo-ssr
