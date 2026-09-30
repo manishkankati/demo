@@ -30,6 +30,9 @@ Start the lab:
 lab start deploy-introduction
 oc login -u developer -p developer https://api.ocp4.example.com:6443
 oc new-project deploy-si
+echo "This is the First Page" > /tmp/index.html
+echo "This is the First Page" > /tmp/devopswala.html
+
 ```
 
 ---
@@ -44,10 +47,12 @@ oc new-project deploy-si
 - The application must be deployed to the project `deploy-si`
 - The deployed application and its resources must be named `todo-app2`
 - The build **must modify the existing S2I scripts** of the `httpd:2.4-ubi9` builder image to set the `SERVER_PORT` **environment variable** with the value `8081`
+- During the **build of the image**, as part of the assemble script, /tmp/*.html files are copied into ./
 
 - The application must be accessible using both:
     - http://todo-app2.apps.ocp4.example.com
     - https://todo-app2.apps.ocp4.example.com
+- When web page open, it should displays date when the application was built (YYYY-mm-dd format) as well as the text `You have completed this task`
 ---
 
 <details>
@@ -514,6 +519,10 @@ Add:
 
 ```bash
 export SERVER_PORT=8081
+cp -Rf /tmp/*.html ./
+DATE=$(date "+%F")
+echo "$DATE" >> ./index.html
+echo "You have completed this task" >> ./index.html
 ```
 
 The completed file should be:
@@ -525,6 +534,11 @@ source ${HTTPD_CONTAINER_SCRIPTS_PATH}/common.sh
 
 export HTTPD_RUN_BY_S2I=1
 export SERVER_PORT=8081
+
+cp -Rf /tmp/*.html ./
+DATE=$(date "+%F")
+echo "$DATE" >> ./index.html
+echo "You have completed this task" >> ./index.html
 
 # Make Apache show 'debug' level logs during start up
 exec run-httpd -e debug $@
@@ -617,6 +631,11 @@ You should see approximately:
 ```diff
  export HTTPD_RUN_BY_S2I=1
 +export SERVER_PORT=8081
+
+cp -Rf /tmp/*.html ./
+DATE=$(date "+%F")
+echo "$DATE" >> ./index.html
+echo "You have completed this task" >> ./index.html
 ```
 
 Stage the modified file:
