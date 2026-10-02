@@ -30,7 +30,7 @@ mkdir -p /home/student/ex288/task2/apps/task2/python-webserver
 cd /home/student/ex288/task2/apps/task2/python-webserver
 
 
-cat <<EOF > Containerfile
+cat <<EOF > Dockerfile
 FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
 
 LABEL org.opencontainers.image.title="Devopswala Task2 Web Server"
@@ -47,43 +47,7 @@ RUN microdnf install -y python3 && \
     mkdir -p /devopswala
 
 # Create custom application page
-RUN echo '<html>
-<head>
-<title>EX288 Task2</title>
-<style>
-body {
-    background-color:#0f172a;
-    color:white;
-    font-family:Arial;
-    text-align:center;
-    padding-top:80px;
-}
-.card {
-    background:#1e293b;
-    padding:40px;
-    border-radius:15px;
-    display:inline-block;
-}
-h1 {
-    color:#38bdf8;
-}
-</style>
-</head>
-
-<body>
-
-<div class="card">
-<h1> 🚀 EX288 Task2 Application</h1>
-<h2>Running on OpenShift</h2>
-
-<p>Created by: Devopswala.com Training</p>
-<p>Container Platform: OpenShift</p>
-<p>Server: Python HTTP Server</p>
-
-</div>
-
-</body>
-</html>' > /devopswala/index.html
+RUN echo '🚀 EX288 Task2 Application Running on OpenShiftCreated by: Devopswala.com Training' > /devopswala/index.html
 
 
 ENV DOCROOT=/devopswala
