@@ -202,7 +202,7 @@ USER root
 RUN microdnf install -y python3 && \
     microdnf clean all && \
     mkdir -p /devopswala && \
-    echo "Default Parent Image Content" > /devopswala/index.html
+    echo "🚀 EX288 Task2 Application Running on OpenShiftCreated by: Devopswala.com Training" > /devopswala/index.html
 
 ENV DOCROOT=/devopswala \
     APPLICATION="EX288-Task2"
