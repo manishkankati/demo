@@ -529,6 +529,12 @@ Child Build ==> FROM parent-image ==> ONBUILD COPY executes ==> src/index.html r
 
 ---
 
+### Check the Git credentials. 
+```bash
+cat /tmp/git.txt
+```
+
+
 # Step 12: Commit Child Image Changes
 
 ```bash
