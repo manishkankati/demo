@@ -92,7 +92,7 @@ git remote add origin https://developer:d3v3lop3r@git.ocp4.example.com/developer
 git add .
 git commit -m "Add EX288 practice files for Task2"
 git push -u origin lab-pythonv3
-/home/student/ex288/task2/apps/
+rm -rf /home/student/ex288/task2/apps/
 ```
 
 
