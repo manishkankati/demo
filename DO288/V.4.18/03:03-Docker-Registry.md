@@ -242,36 +242,7 @@ main
 apps/task77/
 ```
 
-Check the Docker strategy and base image:
 
-```bash
-oc get bc/ex288-docker-app -n task77 \
-  -o jsonpath='{.spec.strategy.type}{"\n"}{.spec.strategy.dockerStrategy.from.namespace}/{.spec.strategy.dockerStrategy.from.name}{"\n"}'
-```
-
-Expected output:
-
-```text
-Docker
-openshift/httpd:2.4-ubi9
-```
-
-Check the build argument:
-
-```bash
-oc get bc/ex288-docker-app -n task77 \
-  -o jsonpath='{.spec.strategy.dockerStrategy.buildArgs[?(@.name=="CodeBinary")].value}{"\n"}'
-```
-
-Check the inline Dockerfile:
-
-```bash
-oc get bc/ex288-docker-app -n task77 \
-  -o jsonpath='{.spec.source.dockerfile}{"\n"}'
-```
-
-Confirm that it contains `/var/www/html/index.html`, `EXPOSE 8080`, and
-`CMD ["run-httpd"]`.
 
 ### Step 8: Follow and verify the automatically triggered build
 
@@ -281,8 +252,7 @@ oc get builds -n task77
 oc get istag/ex288-docker-app:latest -n task77
 ```
 
-The latest build must show the phase `Complete`, and the output image stream tag
-must exist.
+The latest build must show the phase `Complete`, and the output image stream tag must exist.
 
 If you later change the `BuildConfig` and need another build, use:
 
@@ -292,52 +262,32 @@ oc start-build bc/ex288-docker-app --follow --wait -n task77
 
 ### Step 9: Deploy the built image
 
-```bash
-oc create deployment ex288-docker-app \
-  --image=image-registry.openshift-image-registry.svc:5000/task77/ex288-docker-app:latest \
-  -n task77
-
-oc rollout status deployment/ex288-docker-app -n task77
+### Copy the ImageStreamTag name
+```
+oc get all
 ```
 
-The deployment uses the image produced by the `BuildConfig` in the same
-project.
+```bash
+oc new-app task77/ex288-docker-app:latest
+
+oc get all
+```
+
 
 ### Step 10: Create the service
 
 ```bash
-oc expose deployment ex288-docker-app \
-  --name=ex288-docker-app \
-  --port=8080 \
-  --target-port=8080 \
-  -n task77
+oc expose service ex288-docker-app 
 ```
 
 The service provides stable internal access to the application pods.
 
-### Step 11: Create the public route
 
-```bash
-oc expose service ex288-docker-app -n task77
+
+### Step 11: Test the application
 ```
-
-No hostname is supplied, so the OpenShift Ingress Controller assigns the
-default hostname required by the question.
-
-### Step 12: Test the application
-
-```bash
-ROUTE_HOST=$(oc get route ex288-docker-app -n task77 \
-  -o jsonpath='{.spec.host}')
-
-echo "http://${ROUTE_HOST}"
-curl --fail --silent --show-error "http://${ROUTE_HOST}"
-```
-
-Expected response:
-
-```text
-Welcome to Devops-wala
+oc get all
+curl ex288-docker-app-task77.apps.ocp4.example.com
 ```
 
 ---
@@ -347,167 +297,14 @@ Welcome to Devops-wala
 ### Check all required resources
 
 ```bash
-oc get bc,build,is,deploy,pod,svc,route -n task77
+oc get all
 ```
 
-### Check the deployment and pod
-
-```bash
-oc get deployment/ex288-docker-app -n task77
-oc get pods -l app=ex288-docker-app -n task77
-```
-
-The deployment must have one available replica, and the pod must show `Running`
-with `READY` equal to `1/1`.
-
-### Check the service endpoints
-
-```bash
-oc get service/ex288-docker-app -n task77
-oc get endpoints/ex288-docker-app -n task77
-```
-
-The endpoint list must not be empty.
-
-### Check the route
-
-```bash
-oc get route/ex288-docker-app -n task77 \
-  -o custom-columns='NAME:.metadata.name,HOST:.spec.host,SERVICE:.spec.to.name'
-```
-
-### Check the read-only role binding
-
-```bash
-oc get rolebinding -n task77 -o wide | grep devuser
-```
-
-### Grading checklist
-
-| Check | Expected result |
-|---|---|
-| Current project | `task77` |
-| BuildConfig | `ex288-docker-app` |
-| ImageStream | `ex288-docker-app` |
-| Deployment | `ex288-docker-app` |
-| Service | `ex288-docker-app` |
-| Route | `ex288-docker-app` |
-| Build strategy | `Docker` |
-| Base image reference | `openshift/httpd:2.4-ubi9` |
-| Git reference | `main` |
-| Context directory | `apps/task77/` |
-| Build phase | `Complete` |
-| Pod status | `Running` and `1/1` |
-| Route response | `Welcome to Devops-wala` |
-| `devuser` access | `view` role in `task77` |
-
----
-
-## 🛠️ Troubleshooting
-
-### Error: `fatal: not a git repository`
-
-**Cause:** The extracted archive does not contain Git metadata.
-
-**Fix:**
-
-```bash
-cd /home/student/ex288/devops-wala
-git init -b main
-```
-
-### Error: the build cannot clone the Git repository
-
-Inspect the build logs and test the repository from the workstation:
-
-```bash
-oc logs -f bc/ex288-docker-app -n task77
-git ls-remote https://git.ocp4.example.com/developer/devops-wala/
-```
-
-If the lab Git server requires authentication for build-time cloning, create
-and attach the source secret supplied by the instructor. Do not place a
-username or password directly in the `BuildConfig` Git URL.
-
-### Error: `curl: (23) Failure writing output to destination`
-
-**Cause:** The original Dockerfile tries to write to
-`/usr/local/apache2/htdocs/index.html`, which is not the document root used by
-the required UBI HTTPD image.
-
-**Fix:** Confirm that the inline Dockerfile writes to:
-
-```text
-/var/www/html/index.html
-```
-
-### Error: `httpd-foreground: command not found`
-
-**Cause:** `httpd-foreground` belongs to the Docker Hub HTTPD image layout. The
-required Red Hat UBI HTTPD image uses `run-httpd`.
-
-**Fix:**
-
-```bash
-oc get bc/ex288-docker-app -n task77 \
-  -o jsonpath='{.spec.source.dockerfile}{"\n"}'
-```
-
-Confirm that the last instruction is:
-
-```dockerfile
-CMD ["run-httpd"]
-```
-
-### Error: the build cannot find `httpd:2.4-ubi9`
-
-```bash
-oc get istag/httpd:2.4-ubi9 -n openshift
-oc get bc/ex288-docker-app -n task77 \
-  -o jsonpath='{.spec.strategy.dockerStrategy.from.namespace}/{.spec.strategy.dockerStrategy.from.name}{"\n"}'
-```
-
-The second command must return:
-
-```text
-openshift/httpd:2.4-ubi9
-```
-
-### Error: the route returns `503 Service Unavailable`
-
-Check the pod, logs, service selector, service port, and endpoints:
-
-```bash
-oc get pods -n task77
-oc logs deployment/ex288-docker-app -n task77
-oc describe service/ex288-docker-app -n task77
-oc get endpoints/ex288-docker-app -n task77
-```
-
-Common causes include a failed pod, using service port `80` instead of `8080`,
-or an empty endpoint list.
-
-### Error: a resource already exists
-
-Inspect the existing objects before changing them:
-
-```bash
-oc get bc,is,deploy,svc,route -n task77 | grep ex288-docker-app
-```
-
-To reset only this application's resources while keeping the project:
-
-```bash
-oc delete route,service,deployment,buildconfig,imagestream \
-  ex288-docker-app -n task77
-```
-
-> [!WARNING]
-> The following command deletes the complete project and everything in it. Use
-> it only when a full lab reset is intended.
+### How to delete this lab?
 
 ```bash
 oc delete project task77
+rm -rf /home/student/ex288/devops-wala/
 ```
 
 ---
