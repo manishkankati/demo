@@ -83,8 +83,7 @@ git push -u origin secure-api
 You are a developer working on an OpenShift cluster.
 
 - The application must be built and deployed from the source code at:
-  
-       https://git.ocp4.example.com/developer/task1-nodejs-helloworld.git
+  `https://git.ocp4.example.com/developer/task1-nodejs-helloworld.git`
 - The application source code is located in the subdirectory: `apps/task1/helloworld`
 - The Git Branch is **`secure-api`**
 - The application must be deployed to the project `production1`
