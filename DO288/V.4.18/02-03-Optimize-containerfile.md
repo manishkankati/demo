@@ -24,7 +24,8 @@ Git server.
 > application files before attempting the task.
 
 ```bash
-
+lab start deploy-introduction
+oc login -u admin -p redhatocp https://api.ocp4.example.com:6443
 mkdir -p /home/student/ex288/task2/apps/task2/python-webserver
 
 cd /home/student/ex288/task2/apps/task2/python-webserver
