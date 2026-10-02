@@ -100,7 +100,7 @@ rm -rf /home/student/ex288/task2/apps/
 
 ## Question
 
-Your task is to optimize the Containerfile available at:
+Your task is to optimize the Dockerfile available at:
 	`https://git.ocp4.example.com/developer/task2-build.git` on branch **`lab-pythonv3`** 
 - The Containerfile is located under: `apps/task2/python-webserver` 
 
@@ -111,9 +111,9 @@ Your task is to optimize the Containerfile available at:
 	`http://task2-webserver-production2.apps.ocp4.example.com`
 
 
-	- The generated container image must support **image inheritance**, allowing it to be used as a parent image for child images.
+	- The generated Docker image must support **image inheritance**, allowing it to be used as a parent image for child images.
 	- Child images must be able to override the default application content by providing their own files from the `src/` directory.
-	- The optimized Containerfile must produce an image that:
+	- The optimized Dockerfile must produce an image that:
 	  - Contains no more than **10 image layers**
 	  - Has a final image size of less than or equal to **256 MiB**
 	- The application must be successfully built, deployed, and accessible using the created container image.
