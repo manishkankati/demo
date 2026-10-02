@@ -187,7 +187,9 @@ The goal is:
 
 The optimized Dockerfile:
 
+
 ```dockerfile
+cat <<EOF >  Dockerfile
 FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
 
 LABEL org.opencontainers.image.title="Devopswala Task2 Web Server" \
@@ -195,35 +197,28 @@ LABEL org.opencontainers.image.title="Devopswala Task2 Web Server" \
       org.opencontainers.image.version="2.0" \
       org.opencontainers.image.vendor="Devopswala.com Training"
 
-
 USER root
-
 
 RUN microdnf install -y python3 && \
     microdnf clean all && \
     mkdir -p /devopswala && \
     echo "Default Parent Image Content" > /devopswala/index.html
 
-
 ENV DOCROOT=/devopswala \
     APPLICATION="EX288-Task2"
 
-
 EXPOSE 8080
-
 
 USER 1001
 
-
 WORKDIR /devopswala
-
 
 # Child images will execute this instruction
 # when they inherit this image.
 ONBUILD COPY src/ /devopswala/
 
-
 CMD ["python3", "-m", "http.server", "8080"]
+EOF
 ```
 
 ---
