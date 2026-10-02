@@ -117,3 +117,12 @@ Your task is to optimize the Containerfile available at:
 	  - Contains no more than **10 image layers**
 	  - Has a final image size of less than or equal to **256 MiB**
 	- The application must be successfully built, deployed, and accessible using the created container image.
+
+
+### How to clear the lab ?
+```
+oc delete project production2
+rm -rf rm -rf /home/student/ex288/task2/
+https://git.ocp4.example.com/developer/task2-build
+developer/task2-build
+```
