@@ -123,6 +123,6 @@ Your task is to optimize the Containerfile available at:
 ```
 oc delete project production2
 rm -rf rm -rf /home/student/ex288/task2/
-https://git.ocp4.example.com/developer/task2-build
+https://git.ocp4.example.com/developer/task2-build/edit#js-project-advanced-settings
 developer/task2-build
 ```
