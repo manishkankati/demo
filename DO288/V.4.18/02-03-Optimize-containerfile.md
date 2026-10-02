@@ -265,6 +265,12 @@ ONBUILD COPY = Execute when child image is created
 
 # Step 4: Build and Validate Parent Image Locally
 
+Podman login:
+
+```bash
+podman login  -u admin -p redhatocp
+```
+
 Build the image:
 
 ```bash
@@ -640,6 +646,9 @@ curl http://task2-webserver-production2.apps.ocp4.example.com
 ```
 oc delete project production2
 rm -rf rm -rf /home/student/ex288/task2/
+podman login  -u admin -p redhatocp
+podman image rm localhost/test-image
+podman image  rm registry.access.redhat.com/ubi8/ubi-minimal
 https://git.ocp4.example.com/developer/task2-build/edit#js-project-advanced-settings
 developer/task2-build
 ```
