@@ -30,7 +30,10 @@ mkdir -p /home/student/ex288/task2/apps/task2/python-webserver
 
 cd /home/student/ex288/task2/apps/task2/python-webserver
 
-
+cat <<EOF >  /tmp/git.txt 
+Username: developer
+Password: d3v3lop3r
+EOF
 cat <<EOF > Dockerfile
 FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
 
@@ -119,24 +122,8 @@ Your task is to optimize the Dockerfile available at:
 	- The application must be successfully built, deployed, and accessible using the created container image.
 
 
-### How to clear the lab ?
-```
-oc delete project production2
-rm -rf rm -rf /home/student/ex288/task2/
-https://git.ocp4.example.com/developer/task2-build/edit#js-project-advanced-settings
-developer/task2-build
-```
-
-
-
-
-
-
-
-
-
-
-
+<details>
+<summary><strong>✅ 🚀 Show the complete solution and explanation</strong></summary>
 
 
 ---
@@ -297,53 +284,13 @@ REPOSITORY          TAG       SIZE
 test-image          latest    <256MB
 ```
 
----
-
-## Verify Image Layers
-
-Requirement:
-
-```
-Maximum 7 layers
-```
-
-Check:
-
-```bash
-podman inspect test-image \
---format '{{len .RootFS.Layers}}'
-```
-
-Example:
-
-```
-5
-```
-
-The result must be:
-
-```
-<= 7
-```
-
----
-
 ## Verify Image History
 
 ```bash
 podman history test-image:latest
 ```
 
-Review:
 
-- RUN instructions
-- Layer count
-- Image optimization
-```
-
-# Part 2/3
-
-```markdown
 # Step 5: Commit Optimized Dockerfile to Git
 
 After modifying the Dockerfile, push the changes to the Git repository.
@@ -354,23 +301,17 @@ Check status:
 git status
 ```
 
+### Check the Git credentials. 
+```bash
+cat /tmp/git.txt
+```
+
 Add changes:
 
 ```bash
-git add .
+git add . ; git commit -m "Optimize Dockerfile with ONBUILD COPY support" ; git push origin lab-pythonv3
 ```
 
-Commit:
-
-```bash
-git commit -m "Optimize Dockerfile with ONBUILD COPY support"
-```
-
-Push to branch:
-
-```bash
-git push origin lab-pythonv3
-```
 
 Verify:
 
@@ -459,6 +400,11 @@ The parent image contains:
 - Default application content
 - ONBUILD trigger
 
+### Check the Git credentials. 
+```bash
+cat /tmp/git.txt
+```
+
 Create the build configuration:
 
 ```bash
@@ -466,7 +412,7 @@ oc new-build \
 --name=parent-image \
 --strategy=docker \
 --source-secret=git-secret \
-https://developer:d3v3lop3r@git.ocp4.example.com/developer/task2-build.git#lab-pythonv3 \
+--code=https://git.ocp4.example.com/developer/task2-build.git#lab-pythonv3 \
 --context-dir=apps/task2/python-webserver
 ```
 
@@ -562,7 +508,7 @@ curl http://parent-image-production2.apps.ocp4.example.com
 Expected output:
 
 ```text
-Default Parent Image Content
+🚀 EX288 Task2 Application Running on OpenShiftCreated by: Devopswala.com Training
 ```
 
 ---
@@ -590,8 +536,8 @@ cat <<EOF > Dockerfile
 FROM image-registry.openshift-image-registry.svc:5000/production2/parent-image
 EOF
 ```
-
-The parent image contains:
+---
+#### Just for your information: The parent image contains:
 
 ```dockerfile
 ONBUILD COPY src/ /devopswala/
@@ -600,77 +546,20 @@ ONBUILD COPY src/ /devopswala/
 Therefore during the child image build:
 
 ```text
-Child Build
-    |
-    |
-    v
-FROM parent-image
-    |
-    |
-    v
-ONBUILD COPY executes
-    |
-    |
-    v
-src/index.html replaces default content
+Child Build ==> FROM parent-image ==> ONBUILD COPY executes ==> src/index.html replaces default content
 ```
 
 ---
 
-# Step 12: Add Child Application Content
-
-Create:
+# Step 12: Commit Child Image Changes
 
 ```bash
-mkdir -p src
-```
-
-Create child content:
-
-```bash
-cat <<EOF > src/index.html
-<!DOCTYPE html>
-<html>
-<head>
-<title>Child Image Override</title>
-</head>
-
-<body>
-
-<h1>This content is from the child image</h1>
-
-<p>
-The ONBUILD COPY instruction successfully replaced the parent content.
-</p>
-
-</body>
-</html>
-EOF
+git add . ; git commit -m "Create child image using parent image inheritance" ; git push origin lab-pythonv3
 ```
 
 ---
 
-# Step 13: Commit Child Image Changes
-
-```bash
-git add .
-```
-
-Commit:
-
-```bash
-git commit -m "Create child image using parent image inheritance"
-```
-
-Push:
-
-```bash
-git push origin lab-pythonv3
-```
-
----
-
-# Step 14: Create Child Image Build
+# Step 13: Create Child Image Build
 
 Create the final application image:
 
@@ -679,39 +568,17 @@ oc new-build \
 --name=task2-webserver \
 --strategy=docker \
 --source-secret=git-secret \
-https://developer:d3v3lop3r@git.ocp4.example.com/developer/task2-build.git#lab-pythonv3 \
+--code=https://git.ocp4.example.com/developer/task2-build.git#lab-pythonv3 \
 --context-dir=apps/task2/python-webserver
 ```
 
+Verify ImageStream Name:
+
+```
+oc get all
 ```
 
-# Part 3/3
-
-```markdown id="94n5n6"
-# Step 15: Start Child Image Build
-
-Start the Docker build:
-
-```bash
-oc start-build task2-webserver --follow
-```
-
-Monitor the build:
-
-```bash
-oc get builds
-```
-
-Expected:
-
-```text
-NAME                  TYPE       STATUS
-task2-webserver-1     Docker     Complete
-```
-
----
-
-# Step 16: Verify Child Image Deployment
+# Step 14: Verify Child Image Deployment
 
 Deploy the final application image:
 
@@ -725,32 +592,11 @@ Verify resources:
 oc get all
 ```
 
-Expected resources:
 
-```text
-pod/task2-webserver-xxxxx
-
-deployment.apps/task2-webserver
-
-service/task2-webserver
-```
-
-Check pod status:
-
-```bash
-oc get pods
-```
-
-Expected:
-
-```text
-NAME                           READY   STATUS
-task2-webserver-xxxxx          1/1     Running
-```
 
 ---
 
-# Step 17: Create Application Route
+# Step 15: Create Application Route
 
 Expose the application using the required hostname:
 
@@ -774,7 +620,7 @@ task2-webserver     task2-webserver-production2.apps.ocp4.example.com
 
 ---
 
-# Step 18: Test Application
+# Step 16: Test Application
 
 Access the application:
 
@@ -782,292 +628,21 @@ Access the application:
 curl http://task2-webserver-production2.apps.ocp4.example.com
 ```
 
-Expected output:
 
-```html
-<!DOCTYPE html>
-<html>
-
-<h1>This content is from the child image</h1>
-
-<p>
-The ONBUILD COPY instruction successfully replaced the parent content.
-</p>
-
-</html>
-```
-
-This confirms:
-
-✅ Parent image was created  
-✅ Child image inherited from parent image  
-✅ ONBUILD COPY executed successfully  
-✅ Child content replaced parent default content  
 
 ---
 
-# Step 19: Validate Final Image Requirements
+# Step 17: Validate Final Image Requirements
 
 ## Check Image Size
 
-```bash
-oc describe imagestream task2-webserver
+### How to clear the lab ?
 ```
-
-Example:
-
-```text
-Image Size: 60 MB
-```
-
-Requirement:
-
-```
-<= 256 MiB
-```
-
----
-
-## Check Image Layers
-
-The image must contain:
-
-```
-<= 7 layers
-```
-
-Using Podman:
-
-```bash
-podman pull \
-image-registry.openshift-image-registry.svc:5000/production2/task2-webserver:latest
-```
-
-Check:
-
-```bash
-podman inspect task2-webserver \
---format '{{len .RootFS.Layers}}'
-```
-
-Expected:
-
-```text
-7
-```
-
-or less.
-
----
-
-# Step 20: Troubleshooting Guide
-
-## Problem: Build cannot clone Git repository
-
-Error:
-
-```text
-failed to fetch requested repository
-```
-
-Check:
-
-```bash
-oc describe secret git-secret
-```
-
-Verify:
-
-```text
-Type: kubernetes.io/basic-auth
-```
-
-Data should contain:
-
-```text
-username
-password
-```
-
----
-
-## Problem: ONBUILD COPY is not executing
-
-Check the parent image:
-
-```bash
-podman inspect parent-image | grep -i onbuild
-```
-
-The Dockerfile must contain:
-
-```dockerfile
-ONBUILD COPY src/ /devopswala/
-```
-
-Do not use:
-
-```dockerfile
-#ONBUILD COPY
-```
-
-because it is commented.
-
----
-
-## Problem: ImagePullBackOff
-
-Check image reference:
-
-```bash
-oc describe pod <pod-name>
-```
-
-Common mistake:
-
-```bash
-oc create deployment app --image=localhost/image
-```
-
-OpenShift nodes cannot access workstation localhost images.
-
-Use:
-
-```bash
-image-registry.openshift-image-registry.svc:5000/<project>/<image>
-```
-
-or use ImageStreams:
-
-```bash
-oc new-app image-name:latest
-```
-
----
-
-## Problem: ONBUILD ignored during Podman build
-
-You may see:
-
-```text
-ONBUILD is not supported for OCI image format
-```
-
-Build using Docker format:
-
-```bash
-podman build \
---format docker \
--t parent-image .
-```
-
----
-
-# EX288 Task 2 Final Validation Checklist
-
-| Requirement | Validation |
-|---|---|
-| Application deployed in production2 | `oc project` |
-| Git repository used | `oc describe bc` |
-| Dockerfile optimized | `podman history` |
-| Image size <=256 MiB | `oc describe is` |
-| Layers <=7 | `podman inspect` |
-| Parent image created | `oc get is parent-image` |
-| Child image inheritance | `FROM parent-image` |
-| ONBUILD COPY works | Child page displayed |
-| Application accessible | `curl route-url` |
-
----
-
-# Cleanup
-
-Remove application resources:
-
-```bash
-oc delete all -l app=task2-webserver
-```
-
-Remove images:
-
-```bash
-oc delete imagestream parent-image
-oc delete imagestream task2-webserver
-```
-
-Remove project (optional):
-
-```bash
 oc delete project production2
+rm -rf rm -rf /home/student/ex288/task2/
+https://git.ocp4.example.com/developer/task2-build/edit#js-project-advanced-settings
+developer/task2-build
 ```
+# 🎓 End of Lab
 
----
-
-# Key EX288 Memory Notes
-
-## Dockerfile inheritance
-
-Remember:
-
-```
-Parent Image
-     |
-     |
-     v
-ONBUILD COPY
-     |
-     |
-     v
-Child Image provides files
-```
-
----
-
-## COPY vs ONBUILD COPY
-
-| Instruction | Execution Time |
-|---|---|
-| COPY | During current image build |
-| ONBUILD COPY | During child image build |
-
-Memory shortcut:
-
-```
-COPY = My files now
-
-ONBUILD COPY = My child files later
-```
-
----
-
-## Complete Task Flow
-
-```
-Git Repository
-      |
-      |
-      v
-Optimize Dockerfile
-      |
-      |
-      v
-Build Parent Image
-      |
-      |
-      v
-Child Image FROM Parent
-      |
-      |
-      v
-ONBUILD COPY executes
-      |
-      |
-      v
-Deploy Application
-      |
-      |
-      v
-Expose Route
-```
-
-The student has successfully completed an EX288-style container image inheritance and deployment workflow.
-```
+</details>
