@@ -623,7 +623,7 @@ curl http://task2-webserver-production2.apps.ocp4.example.com
 ### How to clear the lab ?
 ```
 oc delete project production2
-rm -rf rm -rf /home/student/ex288/task2/
+rm -rf /home/student/ex288/task2/
 podman login  -u admin -p redhatocp
 podman image rm localhost/test-image
 podman image  rm registry.access.redhat.com/ubi8/ubi-minimal
