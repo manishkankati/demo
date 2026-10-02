@@ -422,30 +422,7 @@ oc new-build \
 
 ---
 
-# Step 8: Start Parent Image Build
-
-Start the build:
-
-```bash
-oc start-build parent-image --follow
-```
-
-Monitor:
-
-```bash
-oc get builds
-```
-
-Expected:
-
-```text
-NAME              TYPE       STATUS
-parent-image-1    Docker     Complete
-```
-
----
-
-# Step 9: Verify Parent Image
+# Step 8: Verify Parent Image
 
 Check ImageStream:
 
@@ -470,7 +447,7 @@ You should see the generated image reference.
 
 ---
 
-# Step 10: Deploy Parent Image (Validation)
+# Step 9: Deploy Parent Image (Validation)
 
 Create deployment:
 
@@ -493,7 +470,7 @@ parent-image-xxxxxx               1/1     Running
 
 ---
 
-Create service route:
+# Step 10: Create service route:
 
 ```bash
 oc expose service parent-image \
