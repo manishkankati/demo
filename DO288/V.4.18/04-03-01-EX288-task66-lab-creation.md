@@ -18,7 +18,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return "Welcome to phyton-webserver EX288 Lab"
+    return "Welcome to python-webserver EX288 Lab"
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
@@ -84,10 +84,10 @@ oc new-build \
 --strategy=source \
 --image-stream=python:3.11-ubi9 \
 https://developer:d3v3lop3r@git.ocp4.example.com/developer/task66-python-webserver.git \
---name=phyton-webserver
+--name=python-webserver
 
-oc new-app phyton-webserver:latest
-oc expose svc phyton-webserver
+oc new-app pyton-webserver:latest
+oc expose svc python-webserver
 
 oc get all
 ````
