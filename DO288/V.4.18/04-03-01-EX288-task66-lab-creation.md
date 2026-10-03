@@ -81,7 +81,9 @@ oc get configmap
 # 9. Create Python S2I BuildConfig
 
 oc new-build \
-python:3.11~https://git.ocp4.example.com/developer/task66-python-webserver.git \
+--strategy=source \
+--image-stream=python:3.11-ubi9 \
+https://developer:d3v3lop3r@git.ocp4.example.com/developer/task66-python-webserver.git \
 --name=phyton-webserver
 
 oc new-app phyton-webserver:latest
