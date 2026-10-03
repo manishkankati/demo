@@ -1,12 +1,36 @@
-# EX288 Practice Lab - Task66 Python Webserver
 
-### Create Git workspace:
+<div align="center">
+
+# 🔴 EX288 Task 04-03-01
+
+## Build trigger
+
+![OpenShift](https://img.shields.io/badge/OpenShift-4.18-EE0000?logo=redhatopenshift&logoColor=white)
+![Build](https://img.shields.io/badge/Buildpush-2496ED?logo=docker&logoColor=white)
+![Project](https://img.shields.io/badge/task66-7B42BC)
+![Guide](https://img.shields.io/badge/Guide-Student_Ready-2EA44F)
+
+</div>
+
+---
+
+## 🧪 How to Prepare the Lab?
+
+Run these commands on the workstation as the `student` user. They download the
+practice repository, initialize it as a Git repository, and push it to the lab
+Git server.
+
+> [!NOTE]
+> Use these preparation commands on a fresh lab environment. Do not change the
+> application files before attempting the task.
 
 ```bash
+# 1. Create project and directories. 
 oc new-project task66
 mkdir -p /home/student/git/task66-python-webserver
 cd /home/student/git/task66-python-webserver
 
+# 2. Git Inint
 git init
 
 # 3. Create Python Application
