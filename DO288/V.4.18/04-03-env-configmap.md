@@ -110,7 +110,8 @@ curl env-config-deploy-config.apps.ocp4.example.com
 
 ### If you have multiple variables that need to be added in the configMap then always use "envFrom"
 
-<img width="1892" height="1059" alt="envFrom" src="https://github.com/user-attachments/assets/47340b7b-ef25-463b-a23e-55ee6f37364d" />
+<img width="1892" height="1059" alt="envFrom" src="https://github.com/user-attachments/assets/a6384ecb-fb2e-4d6a-bfef-27933f5dd9ae" />
+
 
 
 
