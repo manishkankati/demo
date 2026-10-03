@@ -86,7 +86,7 @@ oc new-build \
 https://developer:d3v3lop3r@git.ocp4.example.com/developer/task66-python-webserver.git \
 --name=python-webserver
 
-oc new-app pyton-webserver:latest
+oc new-app python-webserver:latest
 oc expose svc python-webserver
 
 oc get all
