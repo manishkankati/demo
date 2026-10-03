@@ -6,9 +6,10 @@
 
 ### How to create a lab.
 ```
-oc login -u developer -p developer https://api.ocp4.example.com:6443
+oc login -u admin -p redhatocp https://api.ocp4.example.com:6443
 oc new-project deploy-config
-oc new-app env-config --image openshift/hello-openshift 
+oc new-app --name=env-config --image openshift/hello-openshift
+oc expose service env-config
 clear
 oc get all
 ```
@@ -78,6 +79,40 @@ env:
 ---
 
 # ✅ Solution
+
+
+
+
+oc project deploy-config
+oc get all
+
+
+## Task 1: 
+```
+curl env-config-deploy-config.apps.ocp4.example.com
+
+oc create configmap webserver-cm --from-literal=RESPONSE="Welcome to devopswala.com Website!"
+
+oc set env -h
+
+oc set env --from=configmap/webserver-cm  deployment/env-config
+
+curl env-config-deploy-config.apps.ocp4.example.com
+
+
+
+###Testing.
+
+oc delete cm/webserver-cm 
+oc create configmap webserver-cm --from-literal=RESPONSE="Welcome to devopswala.com Websitwwwwwwe!"
+curl env-config-deploy-config.apps.ocp4.example.com
+```
+
+### If you have multiple variables that need to be added in the configMap then always use "envFrom"
+
+<img width="1892" height="1059" alt="envFrom" src="https://github.com/user-attachments/assets/47340b7b-ef25-463b-a23e-55ee6f37364d" />
+
+
 
 ## 🔐 Step 1: Log in and select the project
 
