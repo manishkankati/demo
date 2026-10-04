@@ -1,9 +1,0 @@
-users:
-  - name: punit
-    job: manager
-  - name: rajan
-    job: engineer
-  - name: rajesh
-    job: manager
-  - name: sunil
-    job: intern

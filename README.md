@@ -1,2 +1,0 @@
-Thanks for watching my content from "devops-wala" Youtube Channel.
-Email ID: anishrana2001@rediffmail.com
