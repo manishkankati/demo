@@ -51,8 +51,8 @@ rm -rf /home/student/ex288/template/*
 
 	- Build the OpenShift **`build template`** for the `cdnweb` application from the  template  located at **`05-00-cdnweb-frontend-build-template.yaml`** with the following modification:
 		- Define a new required parameter named **`REGISTRY_URL`** with the following description **`My CDN image registry`**
-  		- The template has the label: template: cdntemp
-		- All created resources should use the name **cdnweb-ui**.
+  		- The template has the label **`template: cdntemp`**
+		- All created resources should use the name **cdnweb-ui**
 		- Use the default branch **`cdn-v4`** from the repository **`https://git.ocp4.example.com/developer/mycdn.git`** & credentials are **`Username: developer`** and **`Password: d3v3lop3r`**
 		- The application's dependencies NPM repository to the corporate is **`http://nexus-infra.apps.ocp4.example.com/repository/npm`**
 		- Set the container image registry as **`registry.ocp4.example.com`**
@@ -328,7 +328,7 @@ For Template labels
 ```bash
 apiVersion: template.openshift.io/v1
 kind: Template
-  labels:                    # Line Added
+labels:                      # Line Added
     template: cdntemp        # Line Added
 metadata:
   name: ${NAME}
