@@ -24,6 +24,7 @@ and push the templates to the lab GitLab repository.
 > application files before attempting the task.
 
 ```bash
+oc login -u developer -p developer https://api.ocp4.example.com:6443
 mkdir -p /home/student/ex288/template
 cd /home/student/ex288/template
 wget https://github.com/anishrana2001/Openshift/raw/refs/heads/main/DO288/V.4.18/05-00-cdnweb-frontend-lab.tar
