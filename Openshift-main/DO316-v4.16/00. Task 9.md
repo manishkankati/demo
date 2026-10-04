@@ -1,0 +1,405 @@
+Task: You need to install the OADP operator and create `ObjectBucketClaim` named `backup` in the `openshift-adp` namespace
+
+
+### Login via admin user.
+```
+oc login -u admin -p redhatocp  https://api.ocp4.example.com:6443
+```
+
+### Identify the URL for the OpenShift web console.
+``
+oc whoami --show-console
+```
+### For your references.
+```
+[student@workstation ~]$ oc whoami --show-console
+https://console-openshift-console.apps.ocp4.example.com
+```
+
+### Open a web browser and go to `https://console-openshift-console.apps.ocp4.example.com` and then, click `Red Hat Identity Management` and log in as the `admin` user with `redhatocp` as the password.
+#### Install the OADP operator: Click `Operators` → `OperatorHub`
+
+<img width="900" height="600" alt="image" src="https://github.com/user-attachments/assets/f93cd5a6-1e8b-4e02-8cd3-a5fc61de7e8c" />
+
+
+#### Once, it installed, Create an S3-compatible object storage bucket for OADP to store backups.
+```
+curl http://
+```
+```
+oc apply -f backup.yaml 
+```
+
+
+
+### For your references.
+```
+[student@workstation ~]$ cat backup.yaml
+apiVersion: objectbucket.io/v1alpha1
+kind: ObjectBucketClaim
+metadata:
+  name: backup                 ### Modified
+  namespace: openshift-adp     ### Modified
+spec:
+  storageClassName: openshift-storage.noobaa.io      ### Modified
+  generateBucketName: backup                         ### Modified
+[student@workstation ~]$ 
+
+[student@workstation ~]$ oc apply -f backup.yaml 
+objectbucketclaim.objectbucket.io/backup created
+[student@workstation ~]$ oc get obc
+NAME     STORAGE-CLASS                 PHASE   AGE
+backup   openshift-storage.noobaa.io   Bound   5s
+[student@workstation ~]$ oc extract --to=- cm/backup
+# BUCKET_HOST
+s3.openshift-storage.svc
+# BUCKET_NAME
+backup-c95a73d2-0c1d-4706-8ddb-033166a87474
+# BUCKET_PORT
+443
+# BUCKET_REGION
+
+# BUCKET_SUBREGION
+
+[student@workstation ~]$ oc get cm/openshift-service-ca.crt  -o jsonpath='{.data.service-ca\.crt}' | base64 -w0; echo
+LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURVVENDQWptZ0F3SUJBZ0lJVktvbmhEK3RraW93RFFZSktvWklodmNOQVFFTEJRQXdOakUwTURJR0ExVUUKQXd3cmIzQmxibk5vYVdaMExYTmxjblpwWTJVdGMyVnlkbWx1WnkxemFXZHVaWEpBTVRjd09UWTJPVEE0TnpBZQpGdzB5TlRBM016QXdORE0yTWpOYUZ3MHlOekE1TWpnd05ETTJNalJhTURZeE5EQXlCZ05WQkFNTUsyOXdaVzV6CmFHbG1kQzF6WlhKMmFXTmxMWE5sY25acGJtY3RjMmxuYm1WeVFERTNNRGsyTmprd09EY3dnZ0VpTUEwR0NTcUcKU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRRFZFbmpCTUZXSDk0TXVQT1kwdGRkQ3V5VmV3K3hVeEpVMQp3WW9QcGkweFIyZmNoZmF2VU5ZM3FrdUY1NWJDQ01LQUU1QmcwRGxCZEsxT2V2bmRHaDdZZGorU0VJK1BEYjFBCkptTVZLeUwyL3FWWFdYY1pRd2lGK25aYlpsT3BiUWUzSTV4YlM4K2Jnd05haE5aVjFEYW1OaXVJVDZ4VUdVcWkKbU1tZkowQStpY3JXQVppNjVBaWR3Q21mY2hsMzY5WjBlL1F1NU5tNS8raERMMUY1Mzl1S3FFRW5XRll5Kzc4WQowSVhoeVZRcTcyZEV6SllHOCtDaGdmdVMxbHhjcVVxbENxWGxhR2tyRnQ5NEV3WHRJR0l3Mk9LQ3lLcTlkaTYxCjNSUklWQ1ZQZ3RNdmJnZnBjand3RGFBeVNsRlhZU0IxZ1Njd0hqd3VBWXFhcGZQd20yK3hBZ01CQUFHall6QmgKTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQQmdOVkhSTUJBZjhFQlRBREFRSC9NQjBHQTFVZERnUVdCQlRKMXFIMgpXTTdLZE1BK3krMVVzM3I1cEh0YnhEQWZCZ05WSFNNRUdEQVdnQlRKMXFIMldNN0tkTUEreSsxVXMzcjVwSHRiCnhEQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUFGci9FUS9IYkRoZ2V1WEVpRVJDdGx0UjhPNmduZ0pKSDJNRDkKajVYdGc4SWt5V2w0RW54YWpLeWlmUzJIWGY1bVF2QlBWK2QvOG1BZEdQa2EyditWOWVrMUtsU1ZTM2lwL0xadwpuNndzUUM4ZjZBNGNvdXlTakNqekwzQzNBd0UzbzgxcHhEWHdCZDFUNHlXOE9ZRXdDZHU3aXMxY0FFblBqc0V2CnpDWFJXU1NkSFJYWm9sZjdITlZnUUU2U1NyT1BJV3BiSWtadS94ZGIydHBDbWRmNUZJcmxGZjVRQ2R1cC9VVU4KQ2ZFMXA2UFZUZXhhZ3RvYTkzeU83eVhuYTBHUVZSellQeFRUYTNCWU9KdHZ4T21ib2xzaEoxZnJ0NUR2Tys3OAphOWFuaG9QMERLZ3VCclFJR1d0T2dsV3VLMWYrbTNrbmViSm94V01VWnh3ZnZCTGxVdz09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0KLS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURVVENDQWptZ0F3SUJBZ0lJVEd0ZmQzWitnTlV3RFFZSktvWklodmNOQVFFTEJRQXdOakUwTURJR0ExVUUKQXd3cmIzQmxibk5vYVdaMExYTmxjblpwWTJVdGMyVnlkbWx1WnkxemFXZHVaWEpBTVRjd09UWTJPVEE0TnpBZQpGdzB5TkRBek1EVXlNREEwTkRkYUZ3MHlOakE0TWprd05ETTJNalJhTURZeE5EQXlCZ05WQkFNTUsyOXdaVzV6CmFHbG1kQzF6WlhKMmFXTmxMWE5sY25acGJtY3RjMmxuYm1WeVFERTNNRGsyTmprd09EY3dnZ0VpTUEwR0NTcUcKU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRQy82MjJvU25OR2EwZjdZaVBzSWtxVW5pTk9LNUM5YzN3QwoxK1RhaHY0TFpvM1FSWlVGU0laTlZXOUtlL0xQa2NoSldwM2VOK05QL28xTUsvK25GSm5ZMmpiQ3ROU2Y1K0NvCmYrSTVzL0xySmErZE4xRHdGT1JFS01oMGJld0RqL3J2WHFhTFgvR2tESFZPOHQvY1B5YVZFcjV6SU9hS1FoUWMKTFRyQWxmTUo3YzZSSVFrWmpRRVVZdVZRdm1CdTB1T2FOSTViRWVBL0JjYVJmY0FqOUZLYTZrM3Vpb1B0ZXBBTgpvWW1ZekdMUjZocXk5Ylp2Y3RyRGQvQzhGNGUxSnUxcGVUbWpHVVIwOHVaMk43VS9QTGxxVnhyY29OcytsUEcxCkJCakpMYkFTZkdDN0EvTXBFK3Z1T1NVdnVsT0NRUXZLWi9uWlNKL2UycW9oc2Y2aVpoT1BBZ01CQUFHall6QmgKTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQQmdOVkhSTUJBZjhFQlRBREFRSC9NQjBHQTFVZERnUVdCQlQ5RHc4Mwp1NDRtRkdQQnJ3SUVwZlNNZGxtTVZqQWZCZ05WSFNNRUdEQVdnQlRKMXFIMldNN0tkTUEreSsxVXMzcjVwSHRiCnhEQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUFlNUNqZ3l3NXNDMTlCb1l1K0dCclZwdnQ1TzdIMm80VTZZY1EKY092TDBMcm9uMGxrMjRmVkVaTFo1cVF4NUdlamhqSVBVa1gxVGQzRmdmcDgySW11c3NmbEs5RmFKSnFRSTZWZApjVGVoTmMrdUd3RytRSkZRVDByS1dVa3d6OWlwVTNna1dUWGdzeUMxMGFJbG5sK1dndnhKd25oUHZ1cnk3cGVxCnc4YUpwL2RKTnk5UjZnbHRiSjhMQlZrbTBHci91NmU4c3RybVo5ZEI0TUJOeUFzSHhJZG5pa3ZudjVYdWI0aWsKNUhDdTk0ekMrZDlyMExQOVVjdDVOcFJGTjFJU3orQVhQaU9obUJ0dDIxQyswU3pnY211VmhCTHZBaTlITHF2dQpsbXlwd3krNUNLRHk2WFBOTjJ5OFNaeUxPaUx3TzA0dm5uK3JVV3pWSmlCMXBPamNCdz09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+
+[student@workstation ~]$ oc extract --to=- secret/backup
+# AWS_ACCESS_KEY_ID
+fhoi3iBz4c8JZ1dbLo7Q
+# AWS_SECRET_ACCESS_KEY
+EeGY75cgtXJzj5lJ6U28yTVcgVtwgVXJWcr8yZ+o
+
+
+[student@workstation ~]$ oc get route s3 -n openshift-storage
+NAME   HOST/PORT                                    PATH   SERVICES   PORT       TERMINATION       WILDCARD
+s3     s3-openshift-storage.apps.ocp4.example.com          s3         s3-https   reencrypt/Allow   None
+[student@workstation ~]$ vim ~/.s3cfg
+
+
+[student@workstation ~]$ cat >  ~/.s3cfg
+access_key = fhoi3iBz4c8JZ1dbLo7Q
+secret_key = EeGY75cgtXJzj5lJ6U28yTVcgVtwgVXJWcr8yZ+o
+host_base = s3-openshift-storage.apps.ocp4.example.com
+host_bucket = s3-openshift-storage.apps.ocp4.example.com/%(bucket)s
+signature_v2 = True
+^C
+[student@workstation ~]$ 
+
+
+[student@workstation ~]$ vi dpa-backup.yml
+apiVersion: oadp.openshift.io/v1alpha1
+kind: DataProtectionApplication
+metadata:
+  name: oadp-backup
+  namespace: openshift-adp
+spec:
+  configuration:
+    nodeAgent:
+      enable: true
+      uploaderType: kopia
+    velero:
+      defaultPlugins:
+        - aws
+        - openshift
+        - csi
+      defaultSnapshotMoveData: true
+  backupLocations:
+    - velero:
+        config:
+          profile: "default"
+          region: "us-east-1"
+          s3Url: https://s3.openshift-storage.svc
+          s3ForcePathStyle: "true"
+          insecureSkipTLSVerify: "true"
+        provider: aws
+        default: true
+        credential:
+          key: cloud
+          name:  cloud-credentials
+        objectStorage:
+          bucket: backup-c95a73d2-0c1d-4706-8ddb-033166a87474
+          prefix: oadp
+          caCert: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURVVENDQWptZ0F3SUJBZ0lJVktvbmhEK3RraW93RFFZSktvWklodmNOQVFFTEJRQXdOakUwTURJR0ExVUUKQXd3cmIzQmxibk5vYVdaMExYTmxjblpwWTJVdGMyVnlkbWx1WnkxemFXZHVaWEpBTVRjd09UWTJPVEE0TnpBZQpGdzB5TlRBM016QXdORE0yTWpOYUZ3MHlOekE1TWpnd05ETTJNalJhTURZeE5EQXlCZ05WQkFNTUsyOXdaVzV6CmFHbG1kQzF6WlhKMmFXTmxMWE5sY25acGJtY3RjMmxuYm1WeVFERTNNRGsyTmprd09EY3dnZ0VpTUEwR0NTcUcKU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRRFZFbmpCTUZXSDk0TXVQT1kwdGRkQ3V5VmV3K3hVeEpVMQp3WW9QcGkweFIyZmNoZmF2VU5ZM3FrdUY1NWJDQ01LQUU1QmcwRGxCZEsxT2V2bmRHaDdZZGorU0VJK1BEYjFBCkptTVZLeUwyL3FWWFdYY1pRd2lGK25aYlpsT3BiUWUzSTV4YlM4K2Jnd05haE5aVjFEYW1OaXVJVDZ4VUdVcWkKbU1tZkowQStpY3JXQVppNjVBaWR3Q21mY2hsMzY5WjBlL1F1NU5tNS8raERMMUY1Mzl1S3FFRW5XRll5Kzc4WQowSVhoeVZRcTcyZEV6SllHOCtDaGdmdVMxbHhjcVVxbENxWGxhR2tyRnQ5NEV3WHRJR0l3Mk9LQ3lLcTlkaTYxCjNSUklWQ1ZQZ3RNdmJnZnBjand3RGFBeVNsRlhZU0IxZ1Njd0hqd3VBWXFhcGZQd20yK3hBZ01CQUFHall6QmgKTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQQmdOVkhSTUJBZjhFQlRBREFRSC9NQjBHQTFVZERnUVdCQlRKMXFIMgpXTTdLZE1BK3krMVVzM3I1cEh0YnhEQWZCZ05WSFNNRUdEQVdnQlRKMXFIMldNN0tkTUEreSsxVXMzcjVwSHRiCnhEQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUFGci9FUS9IYkRoZ2V1WEVpRVJDdGx0UjhPNmduZ0pKSDJNRDkKajVYdGc4SWt5V2w0RW54YWpLeWlmUzJIWGY1bVF2QlBWK2QvOG1BZEdQa2EyditWOWVrMUtsU1ZTM2lwL0xadwpuNndzUUM4ZjZBNGNvdXlTakNqekwzQzNBd0UzbzgxcHhEWHdCZDFUNHlXOE9ZRXdDZHU3aXMxY0FFblBqc0V2CnpDWFJXU1NkSFJYWm9sZjdITlZnUUU2U1NyT1BJV3BiSWtadS94ZGIydHBDbWRmNUZJcmxGZjVRQ2R1cC9VVU4KQ2ZFMXA2UFZUZXhhZ3RvYTkzeU83eVhuYTBHUVZSellQeFRUYTNCWU9KdHZ4T21ib2xzaEoxZnJ0NUR2Tys3OAphOWFuaG9QMERLZ3VCclFJR1d0T2dsV3VLMWYrbTNrbmViSm94V01VWnh3ZnZCTGxVdz09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0KLS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURVVENDQWptZ0F3SUJBZ0lJVEd0ZmQzWitnTlV3RFFZSktvWklodmNOQVFFTEJRQXdOakUwTURJR0ExVUUKQXd3cmIzQmxibk5vYVdaMExYTmxjblpwWTJVdGMyVnlkbWx1WnkxemFXZHVaWEpBTVRjd09UWTJPVEE0TnpBZQpGdzB5TkRBek1EVXlNREEwTkRkYUZ3MHlOakE0TWprd05ETTJNalJhTURZeE5EQXlCZ05WQkFNTUsyOXdaVzV6CmFHbG1kQzF6WlhKMmFXTmxMWE5sY25acGJtY3RjMmxuYm1WeVFERTNNRGsyTmprd09EY3dnZ0VpTUEwR0NTcUcKU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRQy82MjJvU25OR2EwZjdZaVBzSWtxVW5pTk9LNUM5YzN3QwoxK1RhaHY0TFpvM1FSWlVGU0laTlZXOUtlL0xQa2NoSldwM2VOK05QL28xTUsvK25GSm5ZMmpiQ3ROU2Y1K0NvCmYrSTVzL0xySmErZE4xRHdGT1JFS01oMGJld0RqL3J2WHFhTFgvR2tESFZPOHQvY1B5YVZFcjV6SU9hS1FoUWMKTFRyQWxmTUo3YzZSSVFrWmpRRVVZdVZRdm1CdTB1T2FOSTViRWVBL0JjYVJmY0FqOUZLYTZrM3Vpb1B0ZXBBTgpvWW1ZekdMUjZocXk5Ylp2Y3RyRGQvQzhGNGUxSnUxcGVUbWpHVVIwOHVaMk43VS9QTGxxVnhyY29OcytsUEcxCkJCakpMYkFTZkdDN0EvTXBFK3Z1T1NVdnVsT0NRUXZLWi9uWlNKL2UycW9oc2Y2aVpoT1BBZ01CQUFHall6QmgKTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQQmdOVkhSTUJBZjhFQlRBREFRSC9NQjBHQTFVZERnUVdCQlQ5RHc4Mwp1NDRtRkdQQnJ3SUVwZlNNZGxtTVZqQWZCZ05WSFNNRUdEQVdnQlRKMXFIMldNN0tkTUEreSsxVXMzcjVwSHRiCnhEQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUFlNUNqZ3l3NXNDMTlCb1l1K0dCclZwdnQ1TzdIMm80VTZZY1EKY092TDBMcm9uMGxrMjRmVkVaTFo1cVF4NUdlamhqSVBVa1gxVGQzRmdmcDgySW11c3NmbEs5RmFKSnFRSTZWZApjVGVoTmMrdUd3RytRSkZRVDByS1dVa3d6OWlwVTNna1dUWGdzeUMxMGFJbG5sK1dndnhKd25oUHZ1cnk3cGVxCnc4YUpwL2RKTnk5UjZnbHRiSjhMQlZrbTBHci91NmU4c3RybVo5ZEI0TUJOeUFzSHhJZG5pa3ZudjVYdWI0aWsKNUhDdTk0ekMrZDlyMExQOVVjdDVOcFJGTjFJU3orQVhQaU9obUJ0dDIxQyswU3pnY211VmhCTHZBaTlITHF2dQpsbXlwd3krNUNLRHk2WFBOTjJ5OFNaeUxPaUx3TzA0dm5uK3JVV3pWSmlCMXBPamNCdz09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+
+[student@workstation ~]$ cat > cloud-credentials
+[default]
+aws_access_key_id=fhoi3iBz4c8JZ1dbLo7Q 
+aws_secret_access_key=EeGY75cgtXJzj5lJ6U28yTVcgVtwgVXJWcr8yZ+o
+^C
+[student@workstation ~]$ oc create secret generic cloud-credentials -n openshift-adp --from-file cloud=cloud-credentials
+secret/cloud-credentials created
+
+[student@workstation ~]$ oc apply -f dpa-backup.yml
+dataprotectionapplication.oadp.openshift.io/oadp-backup created
+
+[student@workstation ~]$ oc get deploy,daemonset -n openshift-adp
+NAME                                               READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/openshift-adp-controller-manager   1/1     1            1           22m
+deployment.apps/velero                             1/1     1            1           18s
+
+NAME                        DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
+daemonset.apps/node-agent   3         3         3       3            3           <none>          18s
+[student@workstation ~]$ 
+
+
+[student@workstation ~]$ oc get BackupStorageLocation
+NAME            PHASE       LAST VALIDATED   AGE    DEFAULT
+oadp-backup-1   Available   20s              119s   true
+
+[student@workstation ~]$ oc get volumesnapshotclass --show-labels 
+NAME                                                 DRIVER                                  DELETIONPOLICY   AGE    LABELS
+ocs-external-storagecluster-cephfsplugin-snapclass   openshift-storage.cephfs.csi.ceph.com   Delete           442d   <none>
+ocs-external-storagecluster-rbdplugin-snapclass      openshift-storage.rbd.csi.ceph.com      Delete           442d   <none>
+
+[student@workstation ~]$ oc label volumesnapshotclass  velero.io/csi-volumesnapshot-class="true" --all
+volumesnapshotclass.snapshot.storage.k8s.io/ocs-external-storagecluster-cephfsplugin-snapclass labeled
+volumesnapshotclass.snapshot.storage.k8s.io/ocs-external-storagecluster-rbdplugin-snapclass labeled
+
+[student@workstation ~]$ oc get volumesnapshotclass --show-labels 
+NAME                                                 DRIVER                                  DELETIONPOLICY   AGE    LABELS
+ocs-external-storagecluster-cephfsplugin-snapclass   openshift-storage.cephfs.csi.ceph.com   Delete           442d   velero.io/csi-volumesnapshot-class=true
+ocs-external-storagecluster-rbdplugin-snapclass      openshift-storage.rbd.csi.ceph.com      Delete           442d   velero.io/csi-volumesnapshot-class=true
+[student@workstation ~]$ 
+
+
+oc new-project database
+oc new-app --name webserver-app1 --image registry.ocp4.example.com:8443/redhattraining/hello-world-nginx:v1.0 
+
+
+[student@workstation ~]$ oc get namespace database -o yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    openshift.io/description: ""
+    openshift.io/display-name: ""
+    openshift.io/requester: admin
+    openshift.io/sa.scc.mcs: s0:c27,c4
+    openshift.io/sa.scc.supplemental-groups: 1000710000/10000  ###########
+    openshift.io/sa.scc.uid-range: 1000710000/10000            ###########
+  creationTimestamp: "2025-08-01T16:25:18Z"
+  labels:
+    kubernetes.io/metadata.name: database
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/audit-version: v1.24
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/warn-version: v1.24
+  name: database
+  resourceVersion: "350490"
+  uid: ef4aecac-c3fc-43f6-b668-9e73dbb3179a
+spec:
+  finalizers:
+  - kubernetes
+status:
+  phase: Active
+[student@workstation ~]$ 
+
+
+
+
+
+[student@workstation ~]$ vi backup-db-manual.yml
+apiVersion: velero.io/v1
+kind: Backup
+metadata:
+  name: db-manual
+  namespace: openshift-adp
+spec:
+  includedNamespaces:
+  - database
+  orLabelSelectors:
+  - matchLabels:
+      app: webserver-app1
+  - matchLabels:
+      kubernetes.io/metadata.name: database
+  includedResources:
+  - namespace
+  - deployments
+  - configmaps
+  - secrets
+  - pvc
+  - pv
+  - services
+  
+[student@workstation ~]$ oc apply -f backup-db-manual.yml
+backup.velero.io/db-manual created
+
+[student@workstation ~]$ alias velero='oc -n openshift-adp exec deployment/velero -c velero -it -- ./velero'
+
+[student@workstation ~]$ velero get backup db-manual
+NAME        STATUS      ERRORS   WARNINGS   CREATED                         EXPIRES   STORAGE LOCATION   SELECTOR
+db-manual   Completed   0        0          2025-08-01 16:31:37 +0000 UTC   29d       oadp-backup-1      <none>
+[student@workstation ~]$ 
+
+
+[student@workstation ~]$ oc get project database-crash
+Error from server (NotFound): namespaces "database-crash" not found
+[student@workstation ~]$ oc apply -f restore-db-crash.yml
+restore.velero.io/db-crash created
+[student@workstation ~]$ oc get project database-crash
+NAME             DISPLAY NAME   STATUS
+database-crash                  Active
+[student@workstation ~]$ 
+
+
+
+[student@workstation ~]$ velero get restore db-crash
+NAME       BACKUP      STATUS      STARTED                         COMPLETED                       ERRORS   WARNINGS   CREATED                         SELECTOR
+db-crash   db-manual   Completed   2025-08-01 16:35:19 +0000 UTC   2025-08-01 16:35:20 +0000 UTC   0        0          2025-08-01 16:35:19 +0000 UTC   <none>
+
+[student@workstation ~]$ oc project database-crash
+Now using project "database-crash" on server "https://api.ocp4.example.com:6443".
+
+[student@workstation ~]$ oc get all
+Warning: apps.openshift.io/v1 DeploymentConfig is deprecated in v4.14+, unavailable in v4.10000+
+NAME                                 READY   STATUS    RESTARTS   AGE
+pod/webserver-app1-c8995748c-h56q4   1/1     Running   0          57s
+
+NAME                     TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+service/webserver-app1   ClusterIP   172.30.146.77   <none>        8080/TCP   57s
+
+NAME                             READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/webserver-app1   1/1     1            1           57s
+
+NAME                                       DESIRED   CURRENT   READY   AGE
+replicaset.apps/webserver-app1-c8995748c   1         1         1       57s
+[student@workstation ~]$ 
+
+
+[student@workstation ~]$ oc get namespace database-crash -o yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    openshift.io/description: ""
+    openshift.io/display-name: ""
+    openshift.io/requester: admin
+    openshift.io/sa.scc.mcs: s0:c27,c4
+    openshift.io/sa.scc.supplemental-groups: 1000710000/10000
+    openshift.io/sa.scc.uid-range: 1000710000/10000
+  creationTimestamp: "2025-08-01T16:35:19Z"
+  labels:
+    kubernetes.io/metadata.name: database-crash
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/audit-version: v1.24
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/warn-version: v1.24
+  name: database-crash
+  resourceVersion: "358324"
+  uid: 26dc2bcd-a65e-429a-8fca-6485b2f788c4
+spec:
+  finalizers:
+  - kubernetes
+status:
+  phase: Active
+[student@workstation ~]$ s3cmd la -r
+2025-08-01 16:31           29  s3://backup-c95a73d2-0c1d-4706-8ddb-033166a87474/oadp/backups/db-manual/db-manual-csi-volumesnapshotclasses.json.gz
+2025-08-01 16:31           29  s3://backup-c95a73d2-0c1d-4706-8ddb-033166a87474/oadp/backups/db-manual/db-manual-csi-volumesnapshotcontents.json.gz
+2025-08-01 16:31           29  s3://backup-c95a73d2-0c1d-4706-8ddb-033166a87474/oadp/backups/db-manual/db-manual-csi-volumesnapshots.json.gz
+2025-08-01 16:31           27  s3://backup-c95a73d2-0c1d-4706-8ddb-033166a87474/oadp/backups/db-manual/db-manual-itemoperations.json.gz
+2025-08-01 16:31         6511  s3://backup-c95a73d2-0c1d-4706-8ddb-033166a87474/oadp/backups/db-manual/db-manual-logs.gz
+2025-08-01 16:31           29  s3://backup-c95a73d2-0c1d-4706-8ddb-033166a87474/oadp/backups/db-manual/db-manual-podvolumebackups.json.gz
+2025-08-01 16:31          102  s3://backup-c95a73d2-0c1d-4706-8ddb-033166a87474/oadp/backups/db-manual/db-manual-resource-list.json.gz
+2025-08-01 16:31           49  s3://backup-c95a73d2-0c1d-4706-8ddb-033166a87474/oadp/backups/db-manual/db-manual-results.gz
+2025-08-01 16:31           29  s3://backup-c95a73d2-0c1d-4706-8ddb-033166a87474/oadp/backups/db-manual/db-manual-volumesnapshots.json.gz
+2025-08-01 16:31         2310  s3://backup-c95a73d2-0c1d-4706-8ddb-033166a87474/oadp/backups/db-manual/db-manual.tar.gz
+2025-08-01 16:31         4006  s3://backup-c95a73d2-0c1d-4706-8ddb-033166a87474/oadp/backups/db-manual/velero-backup.json     ==> 1
+2025-08-01 16:35           27  s3://backup-c95a73d2-0c1d-4706-8ddb-033166a87474/oadp/restores/db-crash/restore-db-crash-itemoperations.json.gz
+2025-08-01 16:35         1220  s3://backup-c95a73d2-0c1d-4706-8ddb-033166a87474/oadp/restores/db-crash/restore-db-crash-logs.gz  == 3
+2025-08-01 16:35          118  s3://backup-c95a73d2-0c1d-4706-8ddb-033166a87474/oadp/restores/db-crash/restore-db-crash-resource-list.json.gz
+2025-08-01 16:35           49  s3://backup-c95a73d2-0c1d-4706-8ddb-033166a87474/oadp/restores/db-crash/restore-db-crash-results.gz
+
+[student@workstation ~]$ 
+
+
+
+
+
+[student@workstation ~]$ velero delete backup db-manual
+Are you sure you want to continue (Y/N)? y
+Request to delete backup "db-manual" submitted successfully.
+The backup will be fully deleted after all associated data (disk snapshots, backup files, restores) are removed.
+
+[student@workstation ~]$ velero get backup db-manual
+An error occurred: backups.velero.io "db-manual" not found
+command terminated with exit code 1
+
+[student@workstation ~]$ oc -n openshift-adp get backup,restore
+No resources found in openshift-adp namespace.
+
+[student@workstation ~]$ s3cmd la -r
+
+
+
+
+[student@workstation ~]$ oc project database
+Now using project "database" on server "https://api.ocp4.example.com:6443".
+[student@workstation ~]$ oc get all 
+Warning: apps.openshift.io/v1 DeploymentConfig is deprecated in v4.14+, unavailable in v4.10000+
+NAME                                 READY   STATUS    RESTARTS   AGE
+pod/webserver-app1-c8995748c-4kgj5   1/1     Running   0          47m
+
+NAME                     TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+service/webserver-app1   ClusterIP   172.30.57.25   <none>        8080/TCP   47m
+
+NAME                             READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/webserver-app1   1/1     1            1           47m
+
+NAME                                        DESIRED   CURRENT   READY   AGE
+replicaset.apps/webserver-app1-6bc4fdd7b6   0         0         0       47m
+replicaset.apps/webserver-app1-c8995748c    1         1         1       47m
+
+NAME                                            IMAGE REPOSITORY                                                           TAGS   UPDATED
+imagestream.image.openshift.io/webserver-app1   image-registry.openshift-image-registry.svc:5000/database/webserver-app1   v1.0   47 minutes ago
+
+
+[student@workstation ~]$ oc get deployment webserver-app1 --show-labels 
+NAME             READY   UP-TO-DATE   AVAILABLE   AGE   LABELS
+webserver-app1   1/1     1            1           48m   app.kubernetes.io/component=webserver-app1,app.kubernetes.io/instance=webserver-app1,app=webserver-app1
+[student@workstation ~]$ 
+
+
+[student@workstation ~]$ oc get deployment webserver-app1 | grep name
+[student@workstation ~]$ oc get deployment webserver-app1 -o yaml  | grep name
+    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"webserver-app1:v1.0"},"fieldPath":"spec.template.spec.containers[?(@.name==\"webserver-app1\")].image"}]'
+  name: webserver-app1
+  namespace: database
+        name: webserver-app1
+
+[student@workstation ~]$ vi schedule-db-backup.yml 
+apiVersion: velero.io/v1
+kind: CronJob
+metadata:
+  name: db-backup
+  namespace: openshift-adp
+spec:
+  schedule: "0 7 * * 0"
+  paused: true
+  template:
+    ttl: 360h0m0s
+    includedNamespaces:
+    - database
+    orLabelSelectors:
+    - matchLabels:
+        app: webserver-app1    ### Deployment label
+    - matchLabels:
+        kubernetes.io/metadata.name: database   ## Namespace label
+    includedResources:
+    - namespace
+    - deployments
+    - configmaps
+    - secrets
+    - pvc
+    - pv
+    - services
+    - pods
+    containers:
+	- name: webserver-app1
+	  command:
+            - /bin/bash
+            - -c
+            - |
+              echo "My name is Anish" > /tmp/anish.txt
+
+```

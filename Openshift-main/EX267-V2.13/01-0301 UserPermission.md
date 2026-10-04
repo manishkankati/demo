@@ -1,0 +1,74 @@
+# EX267 Red Hat OpenShift AI - Workbench Creation Lab
+
+
+## How to create a lab for this question?
+```
+oc login -u admin -p redhatocp  https://api.ocp4.example.com:6443
+oc -n openshift-config get secrets htpasswd-secret -o json | jq -r '.data.htpasswd' | base64 --decode > /tmp/htpasswd-ex267.text
+htpasswd -b /tmp/htpasswd-ex267.text suraj anishrana2001
+htpasswd -b /tmp/htpasswd-ex267.text rajan anishrana2001
+htpasswd -b /tmp/htpasswd-ex267.text punit anishrana2001
+htpasswd -b /tmp/htpasswd-ex267.text raja anishrana2001
+oc -n openshift-config delete secrets htpasswd-secret 
+oc -n openshift-config create secret generic htpasswd-secret --from-file htpasswd=/tmp/htpasswd-ex267.text
+lab start -t AI263 manage-resources
+```
+
+## Task Overview
+Create a Data Science Project and a workbench with specific configurations with user `admin`.
+
+- create a **project** `my-lab-pro`
+- User `admin` should create a **workbench** called `myworkbench-wb` under project `my-lab-pro`
+- Allow **`rajan`** and **`punit`** users with **`admin`** permission only on this project.
+- User `suraj` can `edit` this workbench.
+- Select the image which contain **`PyTorch`** `V2.1` and **Version selection `2024.1`**
+- The workbench must have `8GB` **RAM**, `2` **CPU** 
+- `2 Gi` **Persistent Storage**.
+- Add the **`environment variables`** as **`configMap`** with `var=devops-wala`.
+- Clone the Github repo `https://github.com/RedHatTraining/AI26X-apps`
+
+---
+
+## Prerequisites
+- OpenShift AI (RHODS) installed and accessible
+- `oc` CLI configured with cluster admin or project admin access
+- Users `suraj`, `rajan`, `punit` exist in the cluster
+
+---
+
+## Step-by-Step Solution
+
+### Step 1: Create Project
+- Create project from Web GUI.
+
+### Step 2: Assign the given privileges to users.
+
+### Step 3: Login as Suraj User and Create Workbench
+
+
+### Step 4: Verify Workbench Creation
+```bash
+# Check workbench status
+oc project my-lab-pro
+oc get all
+oc get statefulset.apps/myworkbench-wb
+oc get pods myworkbench-wb-0 -n my-lab-pro -o wide
+
+# Check PVC
+oc get pvc -n my-lab-pro
+oc get pvc -n my-lab-pro | egrep "Bound|2Gi"
+
+# Check ConfigMap
+oc -n my-lab-pro get configmaps  $(oc -n my-lab-pro get configmaps | grep configmap | awk '{print $1}' ) -o yaml
+```
+
+---
+
+## Expected Output
+```
+oc login -u suraj -p anishrana2001
+oc get statefulset.apps/myworkbench-wb
+oc -n my-lab-pro get configmaps  $(oc -n my-lab-pro get configmaps | grep configmap | awk '{print $1}' ) -o yaml | egrep "var: devops-wala"
+oc get pvc | egrep "Bound|2Gi"
+```
+### Workbench Status

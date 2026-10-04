@@ -1,0 +1,186 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  annotations:
+    defaults.template.kubevirt.io/disk: rootdisk
+    description: Template for Red Hat Enterprise Linux 9 VM or newer. A PVC with the
+      RHEL disk image must be available.
+    iconClass: icon-rhel
+    name.os.template.kubevirt.io/rhel9.0: Red Hat Enterprise Linux 9.0 or higher
+    name.os.template.kubevirt.io/rhel9.1: Red Hat Enterprise Linux 9.0 or higher
+    name.os.template.kubevirt.io/rhel9.2: Red Hat Enterprise Linux 9.0 or higher
+    name.os.template.kubevirt.io/rhel9.3: Red Hat Enterprise Linux 9.0 or higher
+    name.os.template.kubevirt.io/rhel9.4: Red Hat Enterprise Linux 9.0 or higher
+    name.os.template.kubevirt.io/rhel9.5: Red Hat Enterprise Linux 9.0 or higher
+    openshift.io/display-name: 'ha-node-template '
+    openshift.io/documentation-url: https://github.com/kubevirt/common-templates
+    openshift.io/provider-display-name: REDHATEXAM
+    openshift.io/support-url: https://github.com/kubevirt/common-templates/issues
+    openshift.kubevirt.io/pronounceable-suffix-for-name-expression: "true"
+    operator-sdk/primary-resource: openshift-cnv/ssp-kubevirt-hyperconverged
+    operator-sdk/primary-resource-type: SSP.ssp.kubevirt.io
+    tags: hidden,kubevirt,virtualmachine,linux,rhel
+    template.kubevirt.io/containerdisks: |
+      registry.redhat.io/rhel9/rhel-guest-image
+    template.kubevirt.io/editable: |
+      /objects[0].spec.template.spec.domain.cpu.sockets
+      /objects[0].spec.template.spec.domain.cpu.cores
+      /objects[0].spec.template.spec.domain.cpu.threads
+      /objects[0].spec.template.spec.domain.memory.guest
+      /objects[0].spec.template.spec.domain.devices.disks
+      /objects[0].spec.template.spec.volumes
+      /objects[0].spec.template.spec.networks
+    template.kubevirt.io/images: |
+      https://access.redhat.com/downloads/content/479/ver=/rhel---9/9.0/x86_64/product-software
+    template.kubevirt.io/provider: REDHATEXAM
+    template.kubevirt.io/provider-support-level: Full
+    template.kubevirt.io/provider-url: https://www.redhat.com
+    template.kubevirt.io/version: v1alpha1
+    template.openshift.io/bindable: "false"
+  creationTimestamp: "2025-06-14T06:46:37Z"
+  labels:
+    app.kubernetes.io/component: templating
+    app.kubernetes.io/managed-by: ssp-operator
+    app.kubernetes.io/name: custom-templates
+    app.kubernetes.io/part-of: hyperconverged-cluster
+    app.kubernetes.io/version: 4.16.2
+    flavor.template.kubevirt.io/small: "true"
+    os.template.kubevirt.io/rhel9.0: "true"
+    os.template.kubevirt.io/rhel9.1: "true"
+    os.template.kubevirt.io/rhel9.2: "true"
+    os.template.kubevirt.io/rhel9.3: "true"
+    os.template.kubevirt.io/rhel9.4: "true"
+    os.template.kubevirt.io/rhel9.5: "true"
+    template.kubevirt.io/type: vm
+    template.kubevirt.io/version: v0.29.2
+    vm.kubevirt.io/template: rhel9-server-small
+    vm.kubevirt.io/template.namespace: openshift
+    workload.template.kubevirt.io/server: "true"
+  name: ha-node-template
+  namespace: ha-node
+  resourceVersion: "1964081"
+  uid: 7bbc85b3-6a8b-42bc-98ad-e35fec886403
+objects:
+- apiVersion: kubevirt.io/v1
+  kind: VirtualMachine
+  metadata:
+    annotations:
+      vm.kubevirt.io/validations: |
+        [
+          {
+            "name": "minimal-required-memory",
+            "path": "jsonpath::.spec.domain.memory.guest",
+            "rule": "integer",
+            "message": "This VM requires more memory.",
+            "min": 1610612736
+          }
+        ]
+    labels:
+      app: ${NAME}
+      kubevirt.io/dynamic-credentials-support: "true"
+      vm.kubevirt.io/template: ha-node-template
+      vm.kubevirt.io/template.namespace: ha-node
+      vm.kubevirt.io/template.revision: "1"
+    name: ${NAME}
+    namespace: ha-node
+  spec:
+    dataVolumeTemplates:
+    - metadata:
+        name: ${NAME}
+      spec:
+        preallocation: false
+        source:
+          http:
+            url: http://utility.lab.example.com:8080/openshift4/images/mariadb-server.qcow2
+        storage:
+          resources:
+            requests:
+              storage: 10Gi
+          storageClassName: ocs-external-storagecluster-ceph-rbd-virtualization
+    running: false
+    template:
+      metadata:
+        annotations:
+          vm.kubevirt.io/flavor: small
+          vm.kubevirt.io/os: rhel9
+          vm.kubevirt.io/workload: server
+        labels:
+          kubevirt.io/domain: ${NAME}
+          kubevirt.io/size: small
+      spec:
+        accessCredentials:
+        - sshPublicKey:
+            propagationMethod:
+              noCloud: {}
+            source:
+              secret:
+                secretName: server-ssh-ha-node
+        architecture: amd64
+        domain:
+          cpu:
+            cores: 1
+            sockets: 1
+            threads: 1
+          devices:
+            disks:
+            - bootOrder: 1
+              disk:
+                bus: virtio
+              name: rootdisk
+              shareable: null
+            - bootOrder: 2
+              disk:
+                bus: virtio
+              name: cloudinitdisk
+            interfaces:
+            - masquerade: {}
+              model: virtio
+              name: default
+            rng: {}
+          features:
+            smm:
+              enabled: true
+          firmware:
+            bootloader:
+              efi: {}
+          memory:
+            guest: 2Gi
+        evictionStrategy: LiveMigrate
+        networks:
+        - name: default
+          pod: {}
+        terminationGracePeriodSeconds: 180
+        volumes:
+        - dataVolume:
+            name: ${NAME}
+          name: rootdisk
+        - cloudInitNoCloud:
+            userData: |
+              #cloud-config
+              user: rahul
+              password: anishrana2001
+              chpasswd:
+                expire: false
+          name: cloudinitdisk
+- apiVersion: v1
+  data:
+    key: c3NoLXJzYSBBQUFBQjNOemFDMXljMkVBQUFBREFRQUJBQUFCZ1FEQWpWZ1RsZFVwSHlvb1lDVnVaajg3MFprYVEwNzk4VVh3ZEpZSzhkNHljQllab3Fya1RDVTgvOG13R01rYUhTWU1mVWQxSEphWFk5S0RhQjl1d0FHMXl4b25lYmdsQUVtZGhmeklMKzllTmMyQVp4QkJTanVRd1E4UktXb3Z4ZmZZZjk2RXZ0WEVoNThCNmhreWRlOVhsb1JMUWgrc2RPSWZPMjlPbFYzU3BvbVpwMXp3SGRMRmhtanZRaFBnNytYcmhGZURsOUNZZzBmaDF0Q2Z5Z1JYakdvd2RKWUNPWG85UVhHNVcrQWk1RTBBRFZUcnY4ZnI1UnlEWDBJd2Rta3VlV2cvRXhHemtyUE55NG52SGVzbDJ3bWhtc1VJRmZCeFRQT1dtK2EyTTVPWW01NXBKM2FBVGN6a3ZqUXNZVnd3NTJKWGNuTXcxZVdRdi9mODFjOE42UGh0M0xWYnFSMm9KTjdmdnljQ2xsRFVvbEYyV0ZxS3lDNS9yUlhvZG82QTZzMTdnekxuVXpudDNFWUhoWFJSNHlFUjN3TVRac1ZySEtjdVF3UmR4bVlvNDJJNFR0R21PQmFlczVRdTRrS3JVdWFnQkErdUlSWkhjSnlzZzZzVFN5R09MaG1QQVZuVkFVczdXU0dzUVZJWVFFUE9YRkg3QTVmL1FiZmZjRVU9IHJvb3RAd29ya3N0YXRpb24=
+  kind: Secret
+  metadata:
+    name: server-ssh-ha-node
+    namespace: ha-node
+parameters:
+- description: VM name
+  from: rhel9-[a-z0-9]{16}
+  generate: expression
+  name: NAME
+- description: Name of the DataSource to clone
+  name: DATA_SOURCE_NAME
+  value: rhel9
+- description: Namespace of the DataSource
+  name: DATA_SOURCE_NAMESPACE
+  value: openshift-virtualization-os-images
+- description: Randomized password for the cloud-init user cloud-user
+  from: '[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}'
+  generate: expression
+  name: CLOUD_USER_PASSWORD

@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-deployment
+  labels:
+    app: my-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-container
+        image: registry.ocp4.example.com:8443/redhattraining/hello-world-nginx:v1.0
+        ports:
+        - containerPort: 80
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000710000
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: nginx-logs
+          mountPath: "/var/log/nginx"
+        - name: nginx-tmp
+          mountPath: "/var/lib/nginx/tmp"
+        - name: nginx-run
+          mountPath: "/run"
+      volumes:
+      - name: nginx-logs
+        emptyDir: {}
+      - name: nginx-tmp
+        emptyDir: {}
+      - name: nginx-run
+        emptyDir: {}

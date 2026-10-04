@@ -1,0 +1,21 @@
+apiVersion: velero.io/v1
+kind: Backup
+metadata:
+  name: @
+  namespace: @
+spec:
+  includedNamespaces:
+  - @
+  orLabelSelectors:
+  - matchLabels:
+      @
+  - matchLabels:
+      @
+  includedResources:
+  - namespace
+  - deployments
+  - configmaps
+  - secrets
+  - pvc
+  - pv
+  - services
